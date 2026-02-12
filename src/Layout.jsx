@@ -1,0 +1,46 @@
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { createPageUrl } from './utils';
+
+export default function Layout({ children, currentPageName }) {
+  const navigate = useNavigate();
+
+  const { data: progress, isLoading } = useQuery({
+    queryKey: ['userProgress'],
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      const results = await base44.entities.UserProgress.filter({ created_by: user.email });
+      return results[0];
+    },
+    retry: false
+  });
+
+  useEffect(() => {
+    // Redirect to onboarding if not complete
+    if (!isLoading && currentPageName !== 'Onboarding') {
+      if (!progress || !progress.onboarding_complete) {
+        navigate(createPageUrl('Onboarding'));
+      }
+    }
+  }, [progress, isLoading, currentPageName, navigate]);
+
+  // Show loading while checking progress
+  if (isLoading && currentPageName !== 'Onboarding') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-green-50 to-emerald-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">🌿</div>
+          <p className="text-gray-600">Loading Wanderlings...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen">
+      {children}
+    </div>
+  );
+}
