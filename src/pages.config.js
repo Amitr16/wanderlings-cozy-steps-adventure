@@ -51,6 +51,7 @@ import Onboarding from './pages/Onboarding';
 import Camp from './pages/Camp';
 import Map from './pages/Map';
 import Quests from './pages/Quests';
+import utils from './pages/utils';
 import __Layout from './Layout.jsx';
 
 
@@ -59,6 +60,7 @@ export const PAGES = {
     "Camp": Camp,
     "Map": Map,
     "Quests": Quests,
+    "utils": utils,
 }
 
 export const pagesConfig = {
