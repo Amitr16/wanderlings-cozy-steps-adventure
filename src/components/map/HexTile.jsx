@@ -12,11 +12,28 @@ const biomeEmojis = {
   pebble: '🪨'
 };
 
+// Soft felt color palette with muted, organic tones
 const biomeColors = {
-  fogged: { fill: '#9CA3AF', stroke: '#6B7280' },
-  revealed: { fill: '#E5E7EB', stroke: '#9CA3AF' },
-  restored: { fill: '#86EFAC', stroke: '#10B981' },
-  bloomed: { fill: '#4ADE80', stroke: '#059669' }
+  fogged: { 
+    fill: '#a8b5a0', 
+    stroke: '#6b7566',
+    innerLight: 'rgba(255, 255, 255, 0.1)'
+  },
+  revealed: { 
+    fill: '#c8d5bf', 
+    stroke: '#8fa989',
+    innerLight: 'rgba(255, 255, 255, 0.15)'
+  },
+  restored: { 
+    fill: '#7fbf7a', 
+    stroke: '#4a9044',
+    innerLight: 'rgba(255, 255, 255, 0.2)'
+  },
+  bloomed: { 
+    fill: '#5da958', 
+    stroke: '#2f6b2a',
+    innerLight: 'rgba(255, 255, 255, 0.25)'
+  }
 };
 
 export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAfford, size = 60 }) {
@@ -77,55 +94,80 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Hex tile */}
+      {/* Soft felt hex tile with inner bevel */}
       <motion.path
         d={pathData}
         fill={colors.fill}
         stroke={colors.stroke}
-        strokeWidth={state === 'bloomed' ? 3 : 2}
+        strokeWidth={state === 'bloomed' ? 2.5 : 2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         className={isClickable ? "cursor-pointer" : "cursor-not-allowed"}
         onClick={handleClick}
         initial={false}
         animate={{
           scale: isAnimating ? 1.1 : 1,
-          opacity: state === 'fogged' ? 0.7 : 1
+          opacity: state === 'fogged' ? 0.65 : 1
         }}
-        whileHover={isClickable ? { scale: 1.08 } : {}}
-        transition={{ duration: 0.2 }}
+        whileHover={isClickable ? { scale: 1.06 } : {}}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        style={{
+          filter: 'url(#feltBevel)',
+          paintOrder: 'stroke fill'
+        }}
+      />
+      
+      {/* Inner highlight (felt texture) */}
+      <path
+        d={pathData}
+        fill="none"
+        stroke={colors.innerLight}
+        strokeWidth={1}
+        opacity={state === 'fogged' ? 0.5 : 0.8}
+        style={{
+          transform: 'scale(0.92)',
+          transformOrigin: 'center'
+        }}
       />
 
-      {/* Fog overlay with dissolve effect */}
+      {/* Soft wool-like fog overlay */}
       <AnimatePresence>
         {state === 'fogged' && (
           <motion.path
             d={pathData}
-            fill="#374151"
-            opacity={0.5}
-            initial={{ opacity: 0.5 }}
+            fill="#4a5a45"
+            opacity={0.4}
+            initial={{ opacity: 0.4 }}
             exit={{ 
               opacity: 0,
-              scale: 1.2
+              scale: 1.15,
+              filter: 'blur(8px)'
             }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            style={{ filter: 'blur(2px)' }}
           />
         )}
       </AnimatePresence>
 
-      {/* Bloomed shimmer effect */}
+      {/* Soft bloomed glow (organic, not harsh) */}
       {state === 'bloomed' && (
-        <motion.path
-          d={pathData}
-          fill="url(#shimmerGradient)"
-          opacity={0.3}
-          animate={{
-            opacity: [0.2, 0.4, 0.2]
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
+        <>
+          <motion.path
+            d={pathData}
+            fill="url(#warmGlow)"
+            opacity={0.25}
+            animate={{
+              opacity: [0.2, 0.35, 0.2],
+              scale: [1, 1.02, 1]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            style={{ filter: 'blur(3px)' }}
+          />
+        </>
       )}
 
       {/* Content based on state */}
@@ -223,13 +265,13 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
         {animationType === 'bloom' && <GlowRipple x={0} y={0} size={size} color="#8B5CF6" />}
       </AnimatePresence>
 
-      {/* Shimmer gradient definition */}
+      {/* Soft warm glow gradient (evening light) */}
       <defs>
-        <linearGradient id="shimmerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FDE047" stopOpacity="0.3" />
-          <stop offset="50%" stopColor="#FBBF24" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#FDE047" stopOpacity="0.3" />
-        </linearGradient>
+        <radialGradient id="warmGlow">
+          <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.4" />
+          <stop offset="60%" stopColor="#f59e0b" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#d97706" stopOpacity="0" />
+        </radialGradient>
       </defs>
     </g>
   );
