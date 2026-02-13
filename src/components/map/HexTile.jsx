@@ -149,84 +149,58 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Triple blur layers for complete blending */}
-      <path
-        d={largerPathData}
-        fill={colors.fill}
-        opacity={0.85}
-        style={{ filter: 'blur(20px)' }}
-      />
-      <path
-        d={largerPathData}
-        fill={colors.fill}
-        opacity={0.6}
-        style={{ filter: 'blur(12px)' }}
-      />
-      <path
-        d={pathData}
-        fill={colors.fill}
-        opacity={0.5}
-        style={{ filter: 'blur(6px)' }}
-      />
-      
-      {/* Main tile surface (completely invisible border) */}
+      {/* Invisible interaction layer - hex only for logic/clicks */}
       <motion.path
         d={pathData}
-        fill={colors.fill}
+        fill="transparent"
         stroke="none"
-        strokeWidth={0}
         className={isClickable ? "cursor-pointer" : "cursor-not-allowed"}
         onClick={handleClick}
         initial={false}
-        animate={{
-          scale: isAnimating ? 1.05 : 1,
-          opacity: state === 'fogged' ? 0.85 : 1
-        }}
-        whileHover={isClickable ? { scale: 1.03 } : {}}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        style={{
-          filter: `brightness(${1 + elevation * 0.04})`
-        }}
+        whileHover={isClickable ? { 
+          fill: 'rgba(255, 255, 255, 0.15)',
+          stroke: 'rgba(255, 255, 255, 0.3)',
+          strokeWidth: 2
+        } : {}}
+        transition={{ duration: 0.2 }}
       />
 
-      {/* Soft wool-like fog overlay */}
+      {/* Fog overlay - subtle only */}
       <AnimatePresence>
         {state === 'fogged' && (
-          <motion.path
-            d={pathData}
+          <motion.circle
+            cx={0}
+            cy={0}
+            r={size * 0.8}
             fill="#4a5a45"
-            opacity={0.4}
-            initial={{ opacity: 0.4 }}
-            exit={{ 
-              opacity: 0,
-              scale: 1.15,
-              filter: 'blur(8px)'
-            }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            style={{ filter: 'blur(2px)' }}
+            opacity={0.5}
+            initial={{ opacity: 0.5 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ filter: 'blur(12px)', pointerEvents: 'none' }}
           />
         )}
       </AnimatePresence>
 
-      {/* Soft bloomed glow (organic, not harsh) */}
+      {/* Bloomed glow */}
       {state === 'bloomed' && (
-        <>
-          <motion.path
-            d={pathData}
-            fill="url(#warmGlow)"
-            opacity={0.25}
-            animate={{
-              opacity: [0.2, 0.35, 0.2],
-              scale: [1, 1.02, 1]
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            style={{ filter: 'blur(3px)' }}
-          />
-        </>
+        <motion.circle
+          cx={0}
+          cy={0}
+          r={size * 0.9}
+          fill="url(#warmGlow)"
+          opacity={0.35}
+          animate={{
+            opacity: [0.25, 0.45, 0.25],
+            scale: [0.95, 1.05, 0.95]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          style={{ filter: 'blur(8px)', pointerEvents: 'none' }}
+        />
       )}
 
       {/* Content based on state */}
@@ -324,18 +298,6 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
         {animationType === 'bloom' && <GlowRipple x={0} y={0} size={size} color="#8B5CF6" />}
       </AnimatePresence>
 
-      {/* Gradients for blending and glow */}
-      <defs>
-        <radialGradient id="warmGlow">
-          <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.4" />
-          <stop offset="60%" stopColor="#f59e0b" stopOpacity="0.2" />
-          <stop offset="100%" stopColor="#d97706" stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id="edgeBlend">
-          <stop offset="80%" stopColor="transparent" />
-          <stop offset="100%" stopColor="#4a5a45" stopOpacity="0.2" />
-        </radialGradient>
-      </defs>
     </g>
   );
 }
