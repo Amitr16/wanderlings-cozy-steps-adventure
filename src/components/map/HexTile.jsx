@@ -117,7 +117,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Completely borderless terrain (no hex outline) */}
+      {/* Enlarged overlapping terrain piece (hides grid) */}
       <motion.path
         d={pathData}
         fill={colors.fill}
@@ -127,23 +127,26 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
         initial={false}
         animate={{
           scale: isAnimating ? 1.05 : 1,
-          opacity: state === 'fogged' ? 0.8 : 1
+          opacity: state === 'fogged' ? 0.85 : 1
         }}
         whileHover={isClickable ? { scale: 1.03 } : {}}
         transition={{ duration: 0.3, ease: "easeOut" }}
         style={{
-          filter: `brightness(${1 + elevation * 0.03})`,
+          filter: `brightness(${1 + elevation * 0.04}) blur(${state === 'fogged' ? 1 : 0}px)`,
+          transform: 'scale(1.15)', // Overlap adjacent tiles
+          transformOrigin: 'center'
         }}
       />
       
-      {/* Soft edge gradient for blending */}
+      {/* Soft blending layer */}
       {state !== 'fogged' && (
         <path
           d={pathData}
-          fill="url(#edgeBlend)"
-          opacity={0.15}
+          fill={colors.fill}
+          opacity={0.3}
           style={{
-            transform: 'scale(1.02)',
+            filter: 'blur(8px)',
+            transform: 'scale(1.3)',
             transformOrigin: 'center'
           }}
         />

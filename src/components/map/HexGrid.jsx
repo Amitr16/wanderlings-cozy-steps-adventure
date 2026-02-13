@@ -65,7 +65,7 @@ const getTileElevation = (q, r) => {
 };
 
 export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloom, canAfford }) {
-  const tileSize = 50;
+  const tileSize = 55; // Slightly larger for more overlap
   const padding = 100;
 
   // Filter tiles by week unlock AND island mask
@@ -221,24 +221,33 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           </pattern>
         </defs>
         
-        {/* Continuous terrain base (blended surface) */}
-        <g opacity="0.3">
+        {/* Continuous blended terrain base */}
+        <g opacity="0.5">
           {visibleTiles.map((tile) => {
             const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-            const points = [];
-            for (let i = 0; i < 6; i++) {
-              const angle = (Math.PI / 3) * i - Math.PI / 2;
-              const px = x + tileSize * 1.1 * Math.cos(angle);
-              const py = y + tileSize * 1.1 * Math.sin(angle);
-              points.push(`${px},${py}`);
-            }
+            const elevation = getTileElevation(tile.q, tile.r);
+            const elevationOffset = -elevation * 3;
+            
             return (
-              <path
-                key={`terrain_${tile.q}_${tile.r}`}
-                d={`M ${points.join(' L ')} Z`}
-                fill="url(#mossTexture)"
-                opacity="0.4"
-              />
+              <g key={`terrain_${tile.q}_${tile.r}`}>
+                {/* Large blurred base to hide gaps */}
+                <circle
+                  cx={x}
+                  cy={y + elevationOffset}
+                  r={tileSize * 1.2}
+                  fill="#8fa585"
+                  opacity={0.6}
+                  style={{ filter: 'blur(15px)' }}
+                />
+                {/* Moss texture overlay */}
+                <circle
+                  cx={x}
+                  cy={y + elevationOffset}
+                  r={tileSize * 0.9}
+                  fill="url(#mossTexture)"
+                  opacity={0.3}
+                />
+              </g>
             );
           })}
         </g>
@@ -370,28 +379,40 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           </g>
         ))}
         
-        {/* Large overlapping terrain features */}
-        <g opacity="0.6">
-          {/* Ancient tree cluster (spans 3 tiles) */}
-          <g transform="translate(-60, -80)">
-            <ellipse cx="0" cy="10" rx="45" ry="12" fill="#3d4d37" opacity="0.5" />
-            <text fontSize="48" y="0">🌲</text>
-            <text fontSize="36" x="30" y="-20">🌲</text>
-            <text fontSize="40" x="-35" y="5">🌲</text>
+        {/* Massive overlapping terrain features (break grid dominance) */}
+        <g opacity="0.75" filter="url(#elevationShadow)">
+          {/* Ancient tree forest (spans 5+ tiles) */}
+          <g transform="translate(-80, -100)">
+            <ellipse cx="0" cy="15" rx="80" ry="20" fill="#2d3a28" opacity="0.6" />
+            <text fontSize="64" y="-10">🌲</text>
+            <text fontSize="52" x="50" y="-35">🌲</text>
+            <text fontSize="58" x="-60" y="10">🌲</text>
+            <text fontSize="48" x="20" y="20">🌳</text>
+            <text fontSize="44" x="-30" y="-20">🌲</text>
           </g>
           
-          {/* Mushroom grove (spans 2 tiles) */}
-          <g transform="translate(70, 50)">
-            <ellipse cx="0" cy="8" rx="35" ry="10" fill="#3d4d37" opacity="0.4" />
-            <text fontSize="32" x="-20" y="0">🍄</text>
-            <text fontSize="28" x="15" y="-5">🍄</text>
-            <text fontSize="24" x="5" y="10">🍄</text>
+          {/* Mushroom grove expansion */}
+          <g transform="translate(90, 60)">
+            <ellipse cx="0" cy="12" rx="60" ry="18" fill="#3d4d37" opacity="0.5" />
+            <text fontSize="40" x="-35" y="0">🍄</text>
+            <text fontSize="36" x="25" y="-10">🍄</text>
+            <text fontSize="32" x="5" y="18">🍄</text>
+            <text fontSize="38" x="-15" y="25">🍄</text>
           </g>
           
-          {/* Large moss-covered boulder */}
-          <g transform="translate(-30, 90)">
-            <ellipse cx="0" cy="8" rx="40" ry="12" fill="#1b4332" opacity="0.5" />
-            <text fontSize="56" y="0">🪨</text>
+          {/* Rocky outcrop cluster */}
+          <g transform="translate(-40, 110)">
+            <ellipse cx="0" cy="12" rx="70" ry="18" fill="#1b4332" opacity="0.6" />
+            <text fontSize="72" y="0">🪨</text>
+            <text fontSize="56" x="55" y="10">🪨</text>
+            <text fontSize="48" x="-50" y="15">🪨</text>
+          </g>
+          
+          {/* Scattered wildflowers */}
+          <g transform="translate(50, -50)">
+            <text fontSize="28" x="0" y="0">🌼</text>
+            <text fontSize="24" x="30" y="15">🌸</text>
+            <text fontSize="26" x="-25" y="10">🌺</text>
           </g>
         </g>
         
