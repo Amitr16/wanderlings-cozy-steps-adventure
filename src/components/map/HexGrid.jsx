@@ -206,14 +206,26 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             <stop offset="100%" stopColor="#d97706" stopOpacity="0" />
           </radialGradient>
           
-          {/* Elevation-based shadow */}
+          {/* Elevation-based shadow (softened) */}
           <filter id="elevationShadow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
-            <feOffset dx="0" dy="6" result="offsetblur"/>
+            <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+            <feOffset dx="0" dy="3" result="offsetblur"/>
             <feComponentTransfer>
-              <feFuncA type="linear" slope="0.7"/>
+              <feFuncA type="linear" slope="0.3"/>
             </feComponentTransfer>
-            <feFlood floodColor="#1b4332" floodOpacity="0.6"/>
+            <feFlood floodColor="#1b4332" floodOpacity="0.25"/>
+            <feComposite in2="offsetblur" operator="in"/>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          
+          {/* Hex shadow for village */}
+          <filter id="hexShadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+            <feOffset dx="0" dy="2" result="offsetblur"/>
+            <feFlood floodColor="#000000" floodOpacity="0.2"/>
             <feComposite in2="offsetblur" operator="in"/>
             <feMerge>
               <feMergeNode/>
@@ -236,9 +248,10 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             const elevation = getTileElevation(tile.q, tile.r);
             const elevationOffset = -elevation * 4;
             
-            const baseColor = tile.state === 'fogged' ? '#8a9585' :
-                             tile.state === 'revealed' ? '#b5c4af' :
-                             tile.state === 'restored' ? '#6faf6a' : '#4d9948';
+            const normalizedState = String(tile.state || '').toLowerCase();
+            const baseColor = normalizedState === 'fogged' ? '#8a9585' :
+                             normalizedState === 'revealed' ? '#b5c4af' :
+                             normalizedState === 'restored' ? '#6faf6a' : '#4d9948';
             
             return (
               <circle
@@ -259,9 +272,10 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             const elevation = getTileElevation(tile.q, tile.r);
             const elevationOffset = -elevation * 4;
             
-            const midColor = tile.state === 'fogged' ? '#95a090' :
-                            tile.state === 'revealed' ? '#c0d0ba' :
-                            tile.state === 'restored' ? '#75b570' : '#53a34e';
+            const normalizedState = String(tile.state || '').toLowerCase();
+            const midColor = normalizedState === 'fogged' ? '#95a090' :
+                            normalizedState === 'revealed' ? '#c0d0ba' :
+                            normalizedState === 'restored' ? '#75b570' : '#53a34e';
             
             return (
               <circle
@@ -282,9 +296,10 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             const elevation = getTileElevation(tile.q, tile.r);
             const elevationOffset = -elevation * 4;
             
-            const topColor = tile.state === 'fogged' ? '#a5b0a0' :
-                            tile.state === 'revealed' ? '#cad9c5' :
-                            tile.state === 'restored' ? '#7fc075' : '#5aad55';
+            const normalizedState = String(tile.state || '').toLowerCase();
+            const topColor = normalizedState === 'fogged' ? '#a5b0a0' :
+                            normalizedState === 'revealed' ? '#cad9c5' :
+                            normalizedState === 'restored' ? '#7fc075' : '#5aad55';
             
             return (
               <circle
@@ -429,7 +444,10 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
         {/* Large props spanning multiple tiles (only show in restored areas) */}
         <g opacity="0.85">
           {/* Ancient tree cluster (elevated, northwest) */}
-          {visibleTiles.some(t => t.q <= -1 && t.r <= 0 && (t.state === 'restored' || t.state === 'bloomed')) && (
+          {visibleTiles.some(t => {
+            const s = String(t.state || '').toLowerCase();
+            return t.q <= -1 && t.r <= 0 && (s === 'restored' || s === 'bloomed');
+          }) && (
             <g transform="translate(-100, -120)">
               <ellipse cx="0" cy="20" rx="90" ry="22" fill="#1b4332" opacity="0.5" style={{ filter: 'blur(6px)' }} />
               <text fontSize="70" y="-15">🌲</text>
@@ -441,7 +459,10 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           )}
           
           {/* Boulder field (south) */}
-          {visibleTiles.some(t => t.r >= 2 && (t.state === 'restored' || t.state === 'bloomed')) && (
+          {visibleTiles.some(t => {
+            const s = String(t.state || '').toLowerCase();
+            return t.r >= 2 && (s === 'restored' || s === 'bloomed');
+          }) && (
             <g transform="translate(-30, 140)">
               <ellipse cx="0" cy="18" rx="85" ry="20" fill="#1b4332" opacity="0.55" style={{ filter: 'blur(5px)' }} />
               <text fontSize="76" y="0">🪨</text>
@@ -452,7 +473,10 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           )}
           
           {/* Mushroom grove (northeast) */}
-          {visibleTiles.some(t => t.q >= 1 && t.r <= -1 && (t.state === 'restored' || t.state === 'bloomed')) && (
+          {visibleTiles.some(t => {
+            const s = String(t.state || '').toLowerCase();
+            return t.q >= 1 && t.r <= -1 && (s === 'restored' || s === 'bloomed');
+          }) && (
             <g transform="translate(110, 50)">
               <ellipse cx="0" cy="15" rx="70" ry="18" fill="#2d3a28" opacity="0.45" style={{ filter: 'blur(4px)' }} />
               <text fontSize="44" x="-40" y="0">🍄</text>
@@ -464,7 +488,7 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
         </g>
         
         {/* Heavy fog layer ON TOP (covers everything) */}
-        <g opacity={0.85} style={{ pointerEvents: 'none' }}>
+        <g style={{ pointerEvents: 'none' }}>
           {visibleTiles.filter(t => String(t.state || '').toLowerCase() === 'fogged').map((tile) => {
             const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
             const elevation = getTileElevation(tile.q, tile.r);
@@ -475,18 +499,18 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
                 <circle
                   cx={x}
                   cy={y + elevationOffset}
-                  r={tileSize * 1.6}
-                  fill="#4a5548"
-                  opacity={0.6}
-                  style={{ filter: 'blur(28px)' }}
+                  r={tileSize * 1.3}
+                  fill="#2a3228"
+                  opacity={0.75}
+                  style={{ filter: 'blur(20px)' }}
                 />
                 <circle
                   cx={x}
                   cy={y + elevationOffset}
-                  r={tileSize * 1.1}
-                  fill="#3a4538"
-                  opacity={0.5}
-                  style={{ filter: 'blur(18px)' }}
+                  r={tileSize * 0.9}
+                  fill="#1f251e"
+                  opacity={0.65}
+                  style={{ filter: 'blur(12px)' }}
                 />
               </g>
             );
