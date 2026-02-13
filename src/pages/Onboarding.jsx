@@ -10,6 +10,7 @@ const createPageUrl = (pageName) => `/${pageName}`;
 export default function Onboarding() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleComplete = async () => {
