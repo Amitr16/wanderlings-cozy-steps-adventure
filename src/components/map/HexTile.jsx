@@ -115,9 +115,49 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
     (state === 'revealed' && canAfford.restore) ||
     (state === 'restored' && canAfford.bloom);
 
+  const largerSize = size * 1.2; // Overlapping size
+  
+  // Larger hex path for overlap
+  const largerPoints = [];
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI / 3) * i - Math.PI / 2;
+    const nextAngle = (Math.PI / 3) * (i + 1) - Math.PI / 2;
+    
+    const px = largerSize * Math.cos(angle);
+    const py = largerSize * Math.sin(angle);
+    const nextPx = largerSize * Math.cos(nextAngle);
+    const nextPy = largerSize * Math.sin(nextAngle);
+    
+    const dx = nextPx - px;
+    const dy = nextPy - py;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const ratio = cornerRadius / length;
+    
+    largerPoints.push({
+      start: { x: px + dx * ratio, y: py + dy * ratio },
+      end: { x: nextPx - dx * ratio, y: nextPy - dy * ratio },
+      corner: { x: nextPx, y: nextPy }
+    });
+  }
+  
+  const largerPathData = largerPoints.map((p, i) => {
+    if (i === 0) {
+      return `M ${p.start.x},${p.start.y} L ${p.end.x},${p.end.y}`;
+    }
+    return `Q ${largerPoints[i-1].corner.x},${largerPoints[i-1].corner.y} ${p.start.x},${p.start.y} L ${p.end.x},${p.end.y}`;
+  }).join(' ') + ` Q ${largerPoints[largerPoints.length-1].corner.x},${largerPoints[largerPoints.length-1].corner.y} ${largerPoints[0].start.x},${largerPoints[0].start.y} Z`;
+
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Enlarged overlapping terrain piece (hides grid) */}
+      {/* Base blurred layer for seamless blending */}
+      <path
+        d={largerPathData}
+        fill={colors.fill}
+        opacity={0.7}
+        filter="url(#tileBlur)"
+      />
+      
+      {/* Main tile surface (no border) */}
       <motion.path
         d={pathData}
         fill={colors.fill}
@@ -132,25 +172,9 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
         whileHover={isClickable ? { scale: 1.03 } : {}}
         transition={{ duration: 0.3, ease: "easeOut" }}
         style={{
-          filter: `brightness(${1 + elevation * 0.04}) blur(${state === 'fogged' ? 1 : 0}px)`,
-          transform: 'scale(1.15)', // Overlap adjacent tiles
-          transformOrigin: 'center'
+          filter: `brightness(${1 + elevation * 0.04})`
         }}
       />
-      
-      {/* Soft blending layer */}
-      {state !== 'fogged' && (
-        <path
-          d={pathData}
-          fill={colors.fill}
-          opacity={0.3}
-          style={{
-            filter: 'blur(8px)',
-            transform: 'scale(1.3)',
-            transformOrigin: 'center'
-          }}
-        />
-      )}
 
       {/* Soft wool-like fog overlay */}
       <AnimatePresence>

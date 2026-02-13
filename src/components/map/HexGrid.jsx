@@ -219,6 +219,11 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             <circle cx="2" cy="2" r="0.5" fill="rgba(80,100,70,0.15)"/>
             <circle cx="6" cy="5" r="0.5" fill="rgba(60,80,50,0.1)"/>
           </pattern>
+          
+          {/* Tile blur filter for blending */}
+          <filter id="tileBlur">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4"/>
+          </filter>
         </defs>
         
         {/* Continuous blended terrain base */}
