@@ -2,18 +2,17 @@ import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Info } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-const createPageUrl = (pageName) => `/${pageName}`;
-import MapTile from '../components/map/MapTile';
-import ResourceDisplay from '../components/resources/ResourceDisplay';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import HexGrid from '../components/map/HexGrid';
+import ResourceDisplay from '../components/resources/ResourceDisplay';
+const createPageUrl = (pageName) => `/${pageName}`;
 
 export default function Map() {
   const queryClient = useQueryClient();
 
-  const { data: progress } = useQuery({
+  const { data: progress, isLoading: loadingProgress } = useQuery({
     queryKey: ['userProgress'],
     queryFn: async () => {
       const user = await base44.auth.me();
@@ -22,7 +21,7 @@ export default function Map() {
     }
   });
 
-  const { data: tiles, isLoading } = useQuery({
+  const { data: tiles = [], isLoading: loadingTiles } = useQuery({
     queryKey: ['mapTiles'],
     queryFn: async () => {
       const user = await base44.auth.me();
@@ -30,120 +29,123 @@ export default function Map() {
     }
   });
 
-  const { data: quests } = useQuery({
+  const { data: quests = [] } = useQuery({
     queryKey: ['quests'],
     queryFn: async () => {
       const user = await base44.auth.me();
-      return await base44.entities.Quest.filter({ created_by: user.email });
-    }
+      return await base44.entities.Quest.filter({ created_by: user.email, day: progress?.season_day || 1 });
+    },
+    enabled: !!progress
   });
 
-  const revealMutation = useMutation({
+  const scoutMutation = useMutation({
     mutationFn: async (tile) => {
-      const revealCost = 3;
-      if (progress.glow < revealCost) {
-        throw new Error('Not enough Glow');
-      }
+      const cost = 3;
+      if (progress.glow < cost) throw new Error('Not enough Glow');
 
       await base44.entities.MapTile.update(tile.id, { state: 'revealed' });
       await base44.entities.UserProgress.update(progress.id, {
-        glow: progress.glow - revealCost
+        glow: progress.glow - cost,
+        tiles_scouted: progress.tiles_scouted + 1,
+        sprouts: progress.sprouts + 2
       });
 
       // Update quest progress
-      if (quests) {
-        for (const quest of quests) {
-          if (quest.target_metric === 'tiles_revealed' && !quest.completed) {
-            await base44.entities.Quest.update(quest.id, {
-              current_progress: quest.current_progress + 1,
-              completed: quest.current_progress + 1 >= quest.target_amount
-            });
-          }
+      for (const quest of quests) {
+        if (quest.target_metric === 'scout' && !quest.completed) {
+          await base44.entities.Quest.update(quest.id, {
+            current_progress: Math.min(quest.current_progress + 1, quest.target_amount),
+            completed: quest.current_progress + 1 >= quest.target_amount
+          });
         }
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['mapTiles']);
       queryClient.invalidateQueries(['userProgress']);
+      queryClient.invalidateQueries(['mapTiles']);
       queryClient.invalidateQueries(['quests']);
-      toast.success('Tile revealed! 👁️');
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to reveal tile');
     }
   });
 
   const restoreMutation = useMutation({
     mutationFn: async (tile) => {
-      const restoreCost = 7;
-      if (progress.glow < restoreCost) {
-        throw new Error('Not enough Glow');
-      }
+      const cost = 7;
+      if (progress.glow < cost) throw new Error('Not enough Glow');
 
-      await base44.entities.MapTile.update(tile.id, {
-        state: 'restored',
-        restored_date: new Date().toISOString()
-      });
+      const sproutReward = Math.floor(Math.random() * 9) + 10; // 10-18 Sprouts
 
+      await base44.entities.MapTile.update(tile.id, { state: 'restored' });
       await base44.entities.UserProgress.update(progress.id, {
-        glow: progress.glow - restoreCost,
-        sprouts: progress.sprouts + tile.sprout_reward,
+        glow: progress.glow - cost,
         tiles_restored: progress.tiles_restored + 1,
+        sprouts: progress.sprouts + sproutReward,
         creature_mood: Math.min(100, progress.creature_mood + 5)
       });
 
       // Update quest progress
-      if (quests) {
-        for (const quest of quests) {
-          if (quest.target_metric === 'tiles_restored' && !quest.completed) {
-            await base44.entities.Quest.update(quest.id, {
-              current_progress: quest.current_progress + 1,
-              completed: quest.current_progress + 1 >= quest.target_amount
-            });
-          }
+      for (const quest of quests) {
+        if (quest.target_metric === 'restore' && !quest.completed) {
+          await base44.entities.Quest.update(quest.id, {
+            current_progress: Math.min(quest.current_progress + 1, quest.target_amount),
+            completed: quest.current_progress + 1 >= quest.target_amount
+          });
         }
       }
     },
-    onSuccess: (_, tile) => {
-      queryClient.invalidateQueries(['mapTiles']);
+    onSuccess: () => {
       queryClient.invalidateQueries(['userProgress']);
+      queryClient.invalidateQueries(['mapTiles']);
       queryClient.invalidateQueries(['quests']);
-      toast.success(`Tile restored! +${tile.sprout_reward} Sprouts 🌱`);
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to restore tile');
     }
   });
 
-  if (isLoading) {
+  const bloomMutation = useMutation({
+    mutationFn: async (tile) => {
+      const cost = 12;
+      if (progress.glow < cost) throw new Error('Not enough Glow');
+
+      const sproutReward = Math.floor(Math.random() * 11) + 15; // 15-25 Sprouts
+
+      await base44.entities.MapTile.update(tile.id, { state: 'bloomed' });
+      await base44.entities.UserProgress.update(progress.id, {
+        glow: progress.glow - cost,
+        tiles_bloomed: progress.tiles_bloomed + 1,
+        sprouts: progress.sprouts + sproutReward,
+        creature_mood: Math.min(100, progress.creature_mood + 10)
+      });
+
+      // Update quest progress
+      for (const quest of quests) {
+        if (quest.target_metric === 'bloom' && !quest.completed) {
+          await base44.entities.Quest.update(quest.id, {
+            current_progress: Math.min(quest.current_progress + 1, quest.target_amount),
+            completed: quest.current_progress + 1 >= quest.target_amount
+          });
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['userProgress']);
+      queryClient.invalidateQueries(['mapTiles']);
+      queryClient.invalidateQueries(['quests']);
+    }
+  });
+
+  if (loadingProgress || loadingTiles) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-green-50 to-emerald-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">🗺️</div>
-          <p className="text-gray-600">Loading the magical forest...</p>
+          <p className="text-gray-600">Loading map...</p>
         </div>
       </div>
     );
   }
 
-  // Organize tiles into a grid
-  const gridSize = 5;
-  const tileGrid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(null));
-  tiles?.forEach(tile => {
-    if (tile.position_x < gridSize && tile.position_y < gridSize) {
-      tileGrid[tile.position_y][tile.position_x] = tile;
-    }
-  });
-
   const canAfford = {
-    reveal: (progress?.glow || 0) >= 3,
-    restore: (progress?.glow || 0) >= 7
-  };
-
-  const stats = {
-    fogged: tiles?.filter(t => t.state === 'fogged').length || 0,
-    revealed: tiles?.filter(t => t.state === 'revealed').length || 0,
-    restored: tiles?.filter(t => t.state === 'restored').length || 0
+    scout: progress.glow >= 3,
+    restore: progress.glow >= 7,
+    bloom: progress.glow >= 12
   };
 
   return (
@@ -152,14 +154,12 @@ export default function Map() {
       <div className="bg-white/80 backdrop-blur-sm border-b border-green-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link to={createPageUrl('Camp')}>
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <h1 className="text-2xl font-bold text-gray-800">🗺️ Magical Forest</h1>
-            </div>
+            <Link to={createPageUrl('Camp')}>
+              <Button variant="ghost" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Camp
+              </Button>
+            </Link>
             <div className="flex items-center gap-3">
               <ResourceDisplay type="glow" amount={progress?.glow || 0} size="md" />
               <ResourceDisplay type="sprouts" amount={progress?.sprouts || 0} size="md" />
@@ -168,89 +168,64 @@ export default function Map() {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Map */}
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Info Card */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-amber-100 to-green-100 rounded-2xl p-4 mb-6 border-2 border-green-300"
+          className="bg-white rounded-3xl shadow-xl p-6 mb-6"
         >
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-green-700 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm text-gray-700">
-                <span className="font-bold">Reveal</span> fogged tiles (3 ✨) to discover what's there, then <span className="font-bold">Restore</span> them (7 ✨) to bring them back to life!
-              </p>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-800">🗺️ The Forest</h2>
+            <div className="text-sm text-gray-600">
+              Week {progress?.current_week || 1} • Day {progress?.season_day || 1}
             </div>
           </div>
-        </motion.div>
-
-        {/* Progress Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-xl p-4 border-2 border-gray-300 text-center">
-            <div className="text-2xl mb-1">🌫️</div>
-            <p className="text-2xl font-bold text-gray-800">{stats.fogged}</p>
-            <p className="text-xs text-gray-500">Fogged</p>
-          </div>
-          <div className="bg-white rounded-xl p-4 border-2 border-amber-300 text-center">
-            <div className="text-2xl mb-1">👁️</div>
-            <p className="text-2xl font-bold text-amber-600">{stats.revealed}</p>
-            <p className="text-xs text-gray-500">Revealed</p>
-          </div>
-          <div className="bg-white rounded-xl p-4 border-2 border-green-300 text-center">
-            <div className="text-2xl mb-1">🌲</div>
-            <p className="text-2xl font-bold text-green-600">{stats.restored}</p>
-            <p className="text-xs text-gray-500">Restored</p>
-          </div>
-        </div>
-
-        {/* Map Grid */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-3xl p-6 shadow-xl border-4 border-green-200"
-        >
-          <div className="flex flex-col gap-2">
-            {tileGrid.map((row, y) => (
-              <div key={y} className="flex justify-center gap-2">
-                {row.map((tile, x) => (
-                  <div key={`${x}-${y}`}>
-                    {tile ? (
-                      <MapTile
-                        tile={tile}
-                        onReveal={() => revealMutation.mutate(tile)}
-                        onRestore={() => restoreMutation.mutate(tile)}
-                        canAfford={canAfford}
-                      />
-                    ) : (
-                      <div className="w-20 h-20 sm:w-24 sm:h-24" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            ))}
+          
+          <div className="h-[600px]">
+            <HexGrid
+              tiles={tiles}
+              currentWeek={progress?.current_week || 1}
+              onScout={(tile) => scoutMutation.mutate(tile)}
+              onRestore={(tile) => restoreMutation.mutate(tile)}
+              onBloom={(tile) => bloomMutation.mutate(tile)}
+              canAfford={canAfford}
+            />
           </div>
         </motion.div>
 
         {/* Legend */}
-        <div className="mt-6 bg-white/60 rounded-xl p-4 border border-green-200">
-          <h3 className="font-bold text-gray-800 mb-3 text-sm">Legend</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-gray-300 to-gray-400 rounded border-2 border-gray-500" />
-              <span className="text-gray-600">Fogged (3 ✨ to reveal)</span>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-green-200"
+        >
+          <h3 className="font-bold text-gray-800 mb-3">Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+              <span className="text-2xl">🔍</span>
+              <div>
+                <p className="font-semibold text-sm">Scout</p>
+                <p className="text-xs text-gray-600">3 Glow • Reveals tile</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-amber-100 to-green-100 rounded border-2 border-green-300" />
-              <span className="text-gray-600">Revealed (7 ✨ to restore)</span>
+            <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
+              <span className="text-2xl">🌱</span>
+              <div>
+                <p className="font-semibold text-sm">Restore</p>
+                <p className="text-xs text-gray-600">7 Glow • Brings life back</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-green-200 via-emerald-300 to-green-400 rounded border-2 border-green-500" />
-              <span className="text-gray-600">Restored & Beautiful!</span>
+            <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg">
+              <span className="text-2xl">✨</span>
+              <div>
+                <p className="font-semibold text-sm">Bloom</p>
+                <p className="text-xs text-gray-600">12 Glow • Maximum beauty</p>
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
