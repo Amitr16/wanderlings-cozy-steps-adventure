@@ -115,7 +115,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
     (state === 'revealed' && canAfford.restore) ||
     (state === 'restored' && canAfford.bloom);
 
-  const largerSize = size * 1.2; // Overlapping size
+  const largerSize = size * 1.8; // Much larger for aggressive overlap
   
   // Larger hex path for overlap
   const largerPoints = [];
@@ -149,19 +149,32 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Base blurred layer for seamless blending */}
+      {/* Triple blur layers for complete blending */}
       <path
         d={largerPathData}
         fill={colors.fill}
-        opacity={0.7}
-        filter="url(#tileBlur)"
+        opacity={0.85}
+        style={{ filter: 'blur(20px)' }}
+      />
+      <path
+        d={largerPathData}
+        fill={colors.fill}
+        opacity={0.6}
+        style={{ filter: 'blur(12px)' }}
+      />
+      <path
+        d={pathData}
+        fill={colors.fill}
+        opacity={0.5}
+        style={{ filter: 'blur(6px)' }}
       />
       
-      {/* Main tile surface (no border) */}
+      {/* Main tile surface (completely invisible border) */}
       <motion.path
         d={pathData}
         fill={colors.fill}
         stroke="none"
+        strokeWidth={0}
         className={isClickable ? "cursor-pointer" : "cursor-not-allowed"}
         onClick={handleClick}
         initial={false}

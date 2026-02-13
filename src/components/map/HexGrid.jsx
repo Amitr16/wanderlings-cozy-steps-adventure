@@ -226,8 +226,8 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           </filter>
         </defs>
         
-        {/* Continuous blended terrain base */}
-        <g opacity="0.5">
+        {/* Massive continuous terrain base (no gaps) */}
+        <g opacity="0.8">
           {visibleTiles.map((tile) => {
             const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
             const elevation = getTileElevation(tile.q, tile.r);
@@ -235,22 +235,30 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             
             return (
               <g key={`terrain_${tile.q}_${tile.r}`}>
-                {/* Large blurred base to hide gaps */}
+                {/* Ultra-large blurred base */}
                 <circle
                   cx={x}
                   cy={y + elevationOffset}
-                  r={tileSize * 1.2}
+                  r={tileSize * 2.5}
+                  fill="#8fa585"
+                  opacity={0.7}
+                  style={{ filter: 'blur(35px)' }}
+                />
+                <circle
+                  cx={x}
+                  cy={y + elevationOffset}
+                  r={tileSize * 1.8}
                   fill="#8fa585"
                   opacity={0.6}
-                  style={{ filter: 'blur(15px)' }}
+                  style={{ filter: 'blur(22px)' }}
                 />
-                {/* Moss texture overlay */}
                 <circle
                   cx={x}
                   cy={y + elevationOffset}
-                  r={tileSize * 0.9}
-                  fill="url(#mossTexture)"
-                  opacity={0.3}
+                  r={tileSize * 1.3}
+                  fill="#8fa585"
+                  opacity={0.5}
+                  style={{ filter: 'blur(12px)' }}
                 />
               </g>
             );
