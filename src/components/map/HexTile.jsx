@@ -45,6 +45,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
   const [showAffordError, setShowAffordError] = useState(false);
   
   const handleClick = async () => {
+    console.log('CLICK', tile.q, tile.r, state, canAfford);
     if (isAnimating) return;
     
     if (state === 'fogged') {

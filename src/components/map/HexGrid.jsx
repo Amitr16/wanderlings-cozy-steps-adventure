@@ -411,11 +411,14 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
                   })}
                   
                   {/* Interactive tile layer with Y-offset */}
-                  <g transform={`translate(0, ${elevationOffset})`}>
+                  <g
+                    transform={`translate(${x}, ${y + elevationOffset})`}
+                    filter="url(#elevationShadow)"
+                  >
                     <HexTile
                       tile={tile}
-                      x={x}
-                      y={y}
+                      x={0}
+                      y={0}
                       size={tileSize}
                       onScout={onScout}
                       onRestore={onRestore}
@@ -488,18 +491,18 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
                 <circle
                   cx={x}
                   cy={y + elevationOffset}
-                  r={tileSize * 1.3}
+                  r={tileSize * 1.05}
                   fill="#2a3228"
-                  opacity={0.75}
-                  style={{ filter: 'blur(20px)' }}
+                  opacity={0.25}
+                  style={{ filter: 'blur(10px)' }}
                 />
                 <circle
                   cx={x}
                   cy={y + elevationOffset}
-                  r={tileSize * 0.9}
+                  r={tileSize * 0.75}
                   fill="#1f251e"
-                  opacity={0.65}
-                  style={{ filter: 'blur(12px)' }}
+                  opacity={0.18}
+                  style={{ filter: 'blur(6px)' }}
                 />
               </g>
             );
