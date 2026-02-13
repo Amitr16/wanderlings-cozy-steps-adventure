@@ -94,20 +94,19 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
   const elevationLevels = Object.keys(tilesByElevation).map(Number).sort((a, b) => a - b);
 
   return (
-    <div className="w-full h-full overflow-auto rounded-2xl relative bg-gradient-to-br from-green-100 via-emerald-50 to-green-100">
+    <div className="w-full h-full overflow-auto relative">
       
       {/* Felt mat on table */}
       <div 
-        className="absolute inset-8 rounded-2xl"
+        className="absolute inset-0 rounded-2xl"
         style={{
           background: `
-            radial-gradient(ellipse at 50% 40%, rgba(251, 191, 36, 0.15) 0%, transparent 65%),
+            radial-gradient(ellipse at 50% 40%, rgba(251, 191, 36, 0.12) 0%, transparent 65%),
             radial-gradient(circle at 50% 50%, #a8b89d 0%, #8fa585 50%, #76926d 100%)
           `,
           boxShadow: `
-            0 8px 24px rgba(0,0,0,0.35),
-            inset 0 0 60px rgba(0,0,0,0.08),
-            inset 0 -2px 8px rgba(255,255,255,0.1)
+            inset 0 0 60px rgba(0,0,0,0.06),
+            inset 0 -2px 8px rgba(255,255,255,0.08)
           `
         }}
       />
@@ -230,14 +229,14 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
         </defs>
         
         {/* Unified continuous terrain base - single landmass */}
-        <g>
+        <g style={{ pointerEvents: 'none' }}>
           {/* Deep blur base for seamless blending */}
           {visibleTiles.map((tile) => {
             const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
             const elevation = getTileElevation(tile.q, tile.r);
             const elevationOffset = -elevation * 4;
             
-            const normalizedState = String(tile.state || '').toLowerCase();
+            const normalizedState = String(tile.state || 'fogged').toLowerCase();
             const baseColor = normalizedState === 'fogged' ? '#6b7566' :
                              normalizedState === 'revealed' ? '#d4e5cf' :
                              normalizedState === 'restored' ? '#7fc57a' : '#5db958';
@@ -261,7 +260,7 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             const elevation = getTileElevation(tile.q, tile.r);
             const elevationOffset = -elevation * 4;
             
-            const normalizedState = String(tile.state || '').toLowerCase();
+            const normalizedState = String(tile.state || 'fogged').toLowerCase();
             const midColor = normalizedState === 'fogged' ? '#7a8575' :
                             normalizedState === 'revealed' ? '#e0f0da' :
                             normalizedState === 'restored' ? '#8ad085' : '#6ac465';
@@ -285,7 +284,7 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             const elevation = getTileElevation(tile.q, tile.r);
             const elevationOffset = -elevation * 4;
             
-            const normalizedState = String(tile.state || '').toLowerCase();
+            const normalizedState = String(tile.state || 'fogged').toLowerCase();
             const topColor = normalizedState === 'fogged' ? '#8a9585' :
                             normalizedState === 'revealed' ? '#f0f9ec' :
                             normalizedState === 'restored' ? '#95db8f' : '#7ed078';
@@ -383,7 +382,7 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
                       const cliffHeight = heightDiff * 4;
                       
                       return (
-                        <g key={`cliff_${idx}`}>
+                        <g key={`cliff_${idx}`} style={{ pointerEvents: 'none' }}>
                           {/* Vertical cliff wall */}
                           <rect
                             x={edgeX - 30}
@@ -434,7 +433,7 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
         ))}
         
         {/* Large props spanning multiple tiles (only show in restored areas) */}
-        <g opacity="0.85">
+        <g opacity="0.85" style={{ pointerEvents: 'none' }}>
           {/* Ancient tree cluster (elevated, northwest) */}
           {visibleTiles.some(t => {
             const s = String(t.state || '').toLowerCase();
@@ -479,34 +478,47 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           )}
         </g>
         
-        {/* Heavy fog layer ON TOP (covers everything) */}
+        {/* Soft mist fog layer ON TOP */}
         <g style={{ pointerEvents: 'none' }}>
-          {visibleTiles.filter(t => String(t.state || '').toLowerCase() === 'fogged').map((tile) => {
-            const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-            const elevation = getTileElevation(tile.q, tile.r);
-            const elevationOffset = -elevation * 4;
-            
-            return (
-              <g key={`fog_${tile.q}_${tile.r}`}>
-                <circle
-                  cx={x}
-                  cy={y + elevationOffset}
-                  r={tileSize * 1.05}
-                  fill="#2a3228"
-                  opacity={0.25}
-                  style={{ filter: 'blur(10px)' }}
-                />
-                <circle
-                  cx={x}
-                  cy={y + elevationOffset}
-                  r={tileSize * 0.75}
-                  fill="#1f251e"
-                  opacity={0.18}
-                  style={{ filter: 'blur(6px)' }}
-                />
-              </g>
-            );
-          })}
+          {visibleTiles
+            .filter(t => String(t.state || 'fogged').toLowerCase() === 'fogged')
+            .map((tile) => {
+              const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+              const elevation = getTileElevation(tile.q, tile.r);
+              const elevationOffset = -elevation * 4;
+
+              return (
+                <g key={`fog_${tile.q}_${tile.r}`}>
+                  {/* Wide, light mist base (prevents holes) */}
+                  <circle
+                    cx={x}
+                    cy={y + elevationOffset}
+                    r={tileSize * 1.55}
+                    fill="#e7efe3"
+                    opacity={0.38}
+                    style={{ filter: 'blur(18px)' }}
+                  />
+                  {/* Slight depth */}
+                  <circle
+                    cx={x}
+                    cy={y + elevationOffset}
+                    r={tileSize * 1.10}
+                    fill="#cfdacb"
+                    opacity={0.22}
+                    style={{ filter: 'blur(10px)' }}
+                  />
+                  {/* Tiny shadow hint so it doesn't look flat */}
+                  <circle
+                    cx={x}
+                    cy={y + elevationOffset + 6}
+                    r={tileSize * 1.05}
+                    fill="#6b7566"
+                    opacity={0.06}
+                    style={{ filter: 'blur(14px)' }}
+                  />
+                </g>
+              );
+            })}
         </g>
       </svg>
     </div>

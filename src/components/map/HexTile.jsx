@@ -38,7 +38,7 @@ const biomeColors = {
 
 export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAfford, size = 60, elevation = 0 }) {
   // Normalize state to lowercase for robust matching
-  const state = String(tile.state || '').toLowerCase();
+  const state = String(tile.state || 'fogged').toLowerCase();
   const { biome } = tile;
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationType, setAnimationType] = useState(null);
