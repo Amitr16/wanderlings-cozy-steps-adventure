@@ -47,18 +47,18 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Onboarding from './pages/Onboarding';
 import Camp from './pages/Camp';
 import Map from './pages/Map';
+import Onboarding from './pages/Onboarding';
 import Quests from './pages/Quests';
 import utils from './pages/utils';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Onboarding": Onboarding,
     "Camp": Camp,
     "Map": Map,
+    "Onboarding": Onboarding,
     "Quests": Quests,
     "utils": utils,
 }
