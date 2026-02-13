@@ -9,6 +9,13 @@ const getHexRadius = (q, r) =>
 const isValidTile = (q, r, maxRadius) =>
   getHexRadius(q, r) <= maxRadius;
 
+const normState = (s) => String(s ?? 'fogged').toLowerCase().trim();
+
+const isCleared = (tile) => {
+  const s = normState(tile.state);
+  return s === 'revealed' || s === 'restored' || s === 'bloomed';
+};
+
 export default function HexGrid({
   tiles = [],
   currentWeek = 1,
@@ -68,7 +75,7 @@ export default function HexGrid({
         preserveAspectRatio="xMidYMid meet"
         style={{ isolation: 'isolate' }}
       >
-        {/* MASK */}
+        {/* FOG MASK & DEFS */}
         <defs>
           <linearGradient id="terrainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#6b8f5f" />
@@ -76,16 +83,16 @@ export default function HexGrid({
             <stop offset="100%" stopColor="#5f8a55" />
           </linearGradient>
 
-          <clipPath id="islandClip" clipPathUnits="userSpaceOnUse">
-            <circle
-              cx={(minX + maxX) / 2}
-              cy={(minY + maxY) / 2}
-              r={Math.min(maxX - minX, maxY - minY) * 0.35}
-            />
-          </clipPath>
-
-          <mask id="fogMask" maskUnits="userSpaceOnUse">
-            {/* White rect shows fog everywhere */}
+          <mask
+            id="fogMask"
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse"
+            x={minX}
+            y={minY}
+            width={maxX - minX}
+            height={maxY - minY}
+          >
+            {/* White = fog visible everywhere */}
             <rect
               x={minX}
               y={minY}
@@ -93,20 +100,16 @@ export default function HexGrid({
               height={maxY - minY}
               fill="white"
             />
-            
-            {/* Black hexes cut fog for revealed tiles */}
-            {visibleTiles.map(tile => {
-              const s = String(tile.state ?? 'fogged').toLowerCase().trim();
-              if (s === 'fogged') return null;
+
+            {/* Black = cut holes where cleared */}
+            {visibleTiles.map((tile) => {
+              if (!isCleared(tile)) return null;
 
               const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
 
               return (
                 <g key={`mask_${tile.q}_${tile.r}`} transform={`translate(${x}, ${y})`}>
-                  <path
-                    d={hexPath(tileSize)}
-                    fill="black"
-                  />
+                  <path d={hexPath(tileSize)} fill="black" />
                 </g>
               );
             })}
@@ -143,15 +146,15 @@ export default function HexGrid({
           );
         })}
 
-        {/* Fog layer (masked & clipped to island) */}
-        <g mask="url(#fogMask)" clipPath="url(#islandClip)" style={{ pointerEvents: 'none' }}>
+        {/* Fog layer (masked) */}
+        <g mask="url(#fogMask)" style={{ pointerEvents: 'none' }}>
           <rect
             x={minX}
             y={minY}
             width={maxX - minX}
             height={maxY - minY}
             fill="#e7efe3"
-            opacity="0.9"
+            opacity="0.92"
           />
         </g>
       </svg>
