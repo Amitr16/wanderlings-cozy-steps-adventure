@@ -51,6 +51,11 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
       return;
     }
     
+    if (state === 'bloomed') {
+      console.log('[HexTile] Tile is fully bloomed - no more actions available');
+      return;
+    }
+    
     if (state === 'fogged') {
       console.log('[HexTile] 2. State is fogged, checking afford:', canAfford.scout);
       if (canAfford.scout) {
