@@ -77,16 +77,16 @@ export default function HexGrid({
           </linearGradient>
 
           <mask id="fogMask" maskUnits="userSpaceOnUse">
-            {/* Black rect makes everything visible initially */}
+            {/* White rect shows fog everywhere */}
             <rect
               x={minX}
               y={minY}
               width={maxX - minX}
               height={maxY - minY}
-              fill="black"
+              fill="white"
             />
             
-            {/* White hexes hide fog for fogged tiles */}
+            {/* Black hexes cut fog for revealed tiles */}
             {visibleTiles.map(tile => {
               const s = String(tile.state || 'fogged').toLowerCase();
               if (s === 'fogged') return null;
@@ -97,7 +97,7 @@ export default function HexGrid({
                 <g key={`mask_${tile.q}_${tile.r}`} transform={`translate(${x}, ${y})`}>
                   <path
                     d={hexPath(tileSize)}
-                    fill="white"
+                    fill="black"
                   />
                 </g>
               );
