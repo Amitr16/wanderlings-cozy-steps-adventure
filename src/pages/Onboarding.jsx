@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import MosslingDisplay from '../components/creature/MosslingDisplay';
 const createPageUrl = (pageName) => `/${pageName}`;
 
