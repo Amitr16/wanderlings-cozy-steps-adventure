@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getAnonKey } from '@/functions/anonIdentity';
+import { getAnonUser } from '@/components/system/anonUser';
 import HexGrid from '../components/map/HexGrid';
 import ResourceDisplay from '../components/resources/ResourceDisplay';
 const createPageUrl = (pageName) => `/${pageName}`;
@@ -16,8 +16,8 @@ export default function Map() {
   const { data: progress, isLoading: loadingProgress } = useQuery({
     queryKey: ['userProgress'],
     queryFn: async () => {
-      const anonKey = getAnonKey();
-      const results = await base44.entities.UserProgress.filter({ created_by: anonKey });
+      const user = getAnonUser();
+      const results = await base44.entities.UserProgress.filter({ created_by: user.email });
       return results[0];
     }
   });
@@ -25,16 +25,16 @@ export default function Map() {
   const { data: tiles = [], isLoading: loadingTiles } = useQuery({
     queryKey: ['mapTiles'],
     queryFn: async () => {
-      const anonKey = getAnonKey();
-      return await base44.entities.MapTile.filter({ created_by: anonKey });
+      const user = getAnonUser();
+      return await base44.entities.MapTile.filter({ created_by: user.email });
     }
   });
 
   const { data: quests = [] } = useQuery({
     queryKey: ['quests'],
     queryFn: async () => {
-      const anonKey = getAnonKey();
-      return await base44.entities.Quest.filter({ created_by: anonKey, day: progress?.season_day || 1 });
+      const user = getAnonUser();
+      return await base44.entities.Quest.filter({ created_by: user.email, day: progress?.season_day || 1 });
     },
     enabled: !!progress
   });
