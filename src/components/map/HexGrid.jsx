@@ -70,6 +70,12 @@ export default function HexGrid({
       >
         {/* MASK */}
         <defs>
+          <linearGradient id="terrainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#6b8f5f" />
+            <stop offset="50%" stopColor="#7fae6e" />
+            <stop offset="100%" stopColor="#5f8a55" />
+          </linearGradient>
+
           <mask id="fogMask">
             {/* Entire area fogged */}
             <rect
@@ -97,6 +103,15 @@ export default function HexGrid({
             })}
           </mask>
         </defs>
+
+        {/* Continuous terrain background */}
+        <rect
+          x={minX}
+          y={minY}
+          width={maxX - minX}
+          height={maxY - minY}
+          fill="url(#terrainGradient)"
+        />
 
         {/* Tiles */}
         {visibleTiles.map(tile => {
