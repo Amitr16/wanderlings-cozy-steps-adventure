@@ -278,7 +278,7 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           <text y={10} textAnchor="middle" className="text-4xl" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🏕️</text>
         </g>
 
-        {/* Soft mist fog layer - UNDER tiles so clicks work */}
+        {/* Fog layer underneath tiles */}
         <g style={{ pointerEvents: 'none' }}>
           {visibleTiles
             .filter(t => String(t.state || 'fogged').toLowerCase() === 'fogged')
