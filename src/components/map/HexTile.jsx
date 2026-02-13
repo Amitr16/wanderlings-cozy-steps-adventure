@@ -353,16 +353,6 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
       </AnimatePresence>
       </g>
 
-      {/* Click target ALWAYS on top */}
-      <circle
-        r={size * 1.05}
-        fill="transparent"
-        stroke="none"
-        className="cursor-pointer"
-        onClick={handleClick}
-        style={{ pointerEvents: 'all' }}
-      />
-
     </g>
   );
 }
