@@ -45,14 +45,20 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
   const [showAffordError, setShowAffordError] = useState(false);
   
   const handleClick = async () => {
-    console.log('CLICK', tile.q, tile.r, state, canAfford);
-    if (isAnimating) return;
+    console.log('CLICK HANDLER', tile.q, tile.r, 'state:', state, 'canAfford:', canAfford);
+    if (isAnimating) {
+      console.log('Already animating, skipping');
+      return;
+    }
     
     if (state === 'fogged') {
+      console.log('State is fogged, checking afford:', canAfford.scout);
       if (canAfford.scout) {
+        console.log('Can afford! Starting scout animation');
         setIsAnimating(true);
         setAnimationType('scout');
         setTimeout(() => {
+          console.log('Calling onScout with tile:', tile);
           onScout(tile);
           setTimeout(() => {
             setIsAnimating(false);
@@ -60,7 +66,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
           }, 500);
         }, 150);
       } else {
-        // Show "not enough Glow" feedback
+        console.log('Cannot afford scout, showing error');
         setShowAffordError(true);
         setTimeout(() => setShowAffordError(false), 1000);
       }
