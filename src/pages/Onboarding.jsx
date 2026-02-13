@@ -236,6 +236,13 @@ export default function Onboarding() {
               {currentStep.content}
             </div>
 
+            {/* Error message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {error}
+              </div>
+            )}
+
             {/* Navigation */}
             <div className="flex justify-between items-center">
               {step > 0 && (
