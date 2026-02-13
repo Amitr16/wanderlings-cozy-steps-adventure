@@ -96,6 +96,7 @@ export default function HexTile({
         d={pathD}
         fill="transparent"
         onPointerDown={(e) => {
+          console.log("🔍 HEX POINTER DOWN", { q: tile.q, r: tile.r, state, target: e.target });
           e.preventDefault();
           e.stopPropagation();
           handleAction();
