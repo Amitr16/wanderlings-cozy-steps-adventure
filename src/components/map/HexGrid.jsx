@@ -44,6 +44,20 @@ export default function HexGrid({
 
   const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
 
+  const maskHexes = visibleTiles
+    .filter(tile => tile.state !== 'fogged')
+    .map(tile => {
+      const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+      return (
+        <g key={`mask_${tile.q}_${tile.r}`} transform={`translate(${x}, ${y})`}>
+          <path
+            d={hexPath(tileSize)}
+            fill="black"
+          />
+        </g>
+      );
+    });
+
   return (
     <div className="w-full h-full overflow-hidden rounded-2xl relative">
       {/* Felt background */}
@@ -87,20 +101,7 @@ export default function HexGrid({
             />
 
             {/* Reveal cleared tiles with hex shapes */}
-            {visibleTiles.map(tile => {
-              if (tile.state === 'fogged') return null;
-
-              const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-
-              return (
-                <g key={`mask_${tile.q}_${tile.r}`} transform={`translate(${x}, ${y})`}>
-                  <path
-                    d={hexPath(tileSize)}
-                    fill="black"
-                  />
-                </g>
-              );
-            })}
+            {maskHexes}
           </mask>
         </defs>
 
@@ -141,8 +142,8 @@ export default function HexGrid({
             y={minY}
             width={maxX - minX}
             height={maxY - minY}
-            fill="#dfe8db"
-            opacity="0.85"
+            fill="#e7efe3"
+            opacity="0.9"
           />
         </g>
       </svg>
