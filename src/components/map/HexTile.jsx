@@ -167,24 +167,22 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
 
   return (
     <g transform={`translate(${x}, ${y})`} style={{ isolation: 'isolate' }}>
-      {/* Hover highlight - needs pointer events to detect hover */}
-      {isClickable && (
-        <motion.circle
-          r={size * 0.85}
-          fill="transparent"
-          stroke="transparent"
-          strokeWidth={0}
-          whileHover={{ 
-            fill: 'rgba(255, 255, 255, 0.12)',
-            stroke: 'rgba(255, 255, 255, 0.25)',
-            strokeWidth: 2
-          }}
-          transition={{ duration: 0.2 }}
-          style={{ pointerEvents: 'none' }}
-        />
-      )}
-
       <g style={{ pointerEvents: 'none' }}>
+        {/* Hover highlight */}
+        {isClickable && (
+          <motion.circle
+            r={size * 0.85}
+            fill="transparent"
+            stroke="transparent"
+            strokeWidth={0}
+            whileHover={{ 
+              fill: 'rgba(255, 255, 255, 0.12)',
+              stroke: 'rgba(255, 255, 255, 0.25)',
+              strokeWidth: 2
+            }}
+            transition={{ duration: 0.2 }}
+          />
+        )}
 
 
 
