@@ -289,11 +289,11 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
 
               return (
                 <g key={`fog_${tile.q}_${tile.r}`}>
-                  {/* Wide, light mist base (prevents holes) */}
+                  {/* Light mist base */}
                   <circle
                     cx={x}
                     cy={y + elevationOffset}
-                    r={tileSize * 1.55}
+                    r={tileSize * 1.10}
                     fill="#e7efe3"
                     opacity={0.38}
                     style={{ filter: 'blur(18px)' }}
@@ -302,16 +302,16 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
                   <circle
                     cx={x}
                     cy={y + elevationOffset}
-                    r={tileSize * 1.10}
+                    r={tileSize * 0.85}
                     fill="#cfdacb"
                     opacity={0.22}
                     style={{ filter: 'blur(10px)' }}
                   />
-                  {/* Tiny shadow hint so it doesn't look flat */}
+                  {/* Tiny shadow hint */}
                   <circle
                     cx={x}
                     cy={y + elevationOffset + 6}
-                    r={tileSize * 1.05}
+                    r={tileSize * 0.80}
                     fill="#6b7566"
                     opacity={0.06}
                     style={{ filter: 'blur(14px)' }}
