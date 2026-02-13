@@ -94,18 +94,7 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
   const elevationLevels = Object.keys(tilesByElevation).map(Number).sort((a, b) => a - b);
 
   return (
-    <div className="w-full h-full overflow-auto rounded-2xl relative">
-      {/* Wooden table texture base */}
-      <div 
-        className="absolute inset-0 rounded-2xl"
-        style={{
-          background: `
-            radial-gradient(ellipse at 50% 45%, rgba(251, 191, 36, 0.12) 0%, transparent 55%),
-            linear-gradient(135deg, #8b7355 0%, #6b5743 50%, #5a4632 100%)
-          `,
-          boxShadow: 'inset 0 0 100px rgba(0,0,0,0.25), inset 0 4px 20px rgba(255,255,255,0.05)'
-        }}
-      />
+    <div className="w-full h-full overflow-auto rounded-2xl relative bg-gradient-to-br from-green-100 via-emerald-50 to-green-100">
       
       {/* Felt mat on table */}
       <div 
@@ -249,9 +238,9 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             const elevationOffset = -elevation * 4;
             
             const normalizedState = String(tile.state || '').toLowerCase();
-            const baseColor = normalizedState === 'fogged' ? '#8a9585' :
-                             normalizedState === 'revealed' ? '#b5c4af' :
-                             normalizedState === 'restored' ? '#6faf6a' : '#4d9948';
+            const baseColor = normalizedState === 'fogged' ? '#6b7566' :
+                             normalizedState === 'revealed' ? '#d4e5cf' :
+                             normalizedState === 'restored' ? '#7fc57a' : '#5db958';
             
             return (
               <circle
@@ -273,9 +262,9 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             const elevationOffset = -elevation * 4;
             
             const normalizedState = String(tile.state || '').toLowerCase();
-            const midColor = normalizedState === 'fogged' ? '#95a090' :
-                            normalizedState === 'revealed' ? '#c0d0ba' :
-                            normalizedState === 'restored' ? '#75b570' : '#53a34e';
+            const midColor = normalizedState === 'fogged' ? '#7a8575' :
+                            normalizedState === 'revealed' ? '#e0f0da' :
+                            normalizedState === 'restored' ? '#8ad085' : '#6ac465';
             
             return (
               <circle
@@ -297,9 +286,9 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             const elevationOffset = -elevation * 4;
             
             const normalizedState = String(tile.state || '').toLowerCase();
-            const topColor = normalizedState === 'fogged' ? '#a5b0a0' :
-                            normalizedState === 'revealed' ? '#cad9c5' :
-                            normalizedState === 'restored' ? '#7fc075' : '#5aad55';
+            const topColor = normalizedState === 'fogged' ? '#8a9585' :
+                            normalizedState === 'revealed' ? '#f0f9ec' :
+                            normalizedState === 'restored' ? '#95db8f' : '#7ed078';
             
             return (
               <circle

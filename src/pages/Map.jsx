@@ -46,6 +46,7 @@ export default function Map() {
       // Add slight delay for animation anticipation
       await new Promise(resolve => setTimeout(resolve, 150));
 
+      console.log('Scouting tile:', tile.q, tile.r, 'from', tile.state, 'to revealed');
       await base44.entities.MapTile.update(tile.id, { state: 'revealed' });
       await base44.entities.UserProgress.update(progress.id, {
         glow: progress.glow - cost,
