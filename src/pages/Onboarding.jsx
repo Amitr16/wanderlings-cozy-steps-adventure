@@ -19,7 +19,14 @@ export default function Onboarding() {
     setLoading(true);
     setError(null);
     try {
-      const user = await base44.auth.me();
+      let user;
+      try {
+        user = await base44.auth.me();
+      } catch (authError) {
+        // User not authenticated, redirect to login
+        base44.auth.redirectToLogin(createPageUrl('Onboarding'));
+        return;
+      }
       
       // Get or create user progress
       const existing = await base44.entities.UserProgress.filter({ created_by: user.email });
