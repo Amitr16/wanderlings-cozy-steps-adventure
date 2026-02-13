@@ -125,6 +125,18 @@ export default function HexGrid({
           fill="url(#terrainGradient)"
         />
 
+        {/* Fog layer (masked) - before tiles so text appears on top */}
+        <g mask="url(#fogMask)" style={{ pointerEvents: 'none' }}>
+          <rect
+            x={minX}
+            y={minY}
+            width={maxX - minX}
+            height={maxY - minY}
+            fill="#e7efe3"
+            opacity="0.92"
+          />
+        </g>
+
         {/* Tiles */}
         {visibleTiles.map(tile => {
           const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
@@ -145,18 +157,6 @@ export default function HexGrid({
             </g>
           );
         })}
-
-        {/* Fog layer (masked) */}
-        <g mask="url(#fogMask)" style={{ pointerEvents: 'none' }}>
-          <rect
-            x={minX}
-            y={minY}
-            width={maxX - minX}
-            height={maxY - minY}
-            fill="#e7efe3"
-            opacity="0.92"
-          />
-        </g>
       </svg>
     </div>
   );
