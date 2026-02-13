@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import HexTile from './HexTile';
-import { hexToPixel } from './hexUtils';
+import { hexToPixel, hexPath } from './hexUtils';
 
 const getHexRadius = (q, r) =>
   Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
@@ -80,37 +80,19 @@ export default function HexGrid({
               fill="white"
             />
 
-            {/* Reveal cleared tiles */}
+            {/* Reveal cleared tiles with hex shapes */}
             {visibleTiles.map(tile => {
               if (tile.state === 'fogged') return null;
 
               const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-              const gradId = `grad_${tile.q}_${tile.r}`;
 
               return (
-                <React.Fragment key={`mask_${tile.q}_${tile.r}`}>
-                  <motion.radialGradient
-                    id={gradId}
-                    gradientUnits="userSpaceOnUse"
-                    cx={x}
-                    cy={y}
-                    r={tileSize * 1.6}
-                  >
-                    <stop offset="0%" stopColor="black" />
-                    <stop offset="70%" stopColor="black" />
-                    <stop offset="100%" stopColor="white" />
-                  </motion.radialGradient>
-
-                  <motion.circle
-                    cx={x}
-                    cy={y}
-                    r={0}
-                    initial={{ r: 0 }}
-                    animate={{ r: tileSize * 1.6 }}
-                    transition={{ duration: 0.6, ease: 'easeOut' }}
-                    fill={`url(#${gradId})`}
+                <g key={`mask_${tile.q}_${tile.r}`} transform={`translate(${x}, ${y})`}>
+                  <path
+                    d={hexPath(tileSize)}
+                    fill="black"
                   />
-                </React.Fragment>
+                </g>
               );
             })}
           </mask>
