@@ -163,6 +163,7 @@ export default function Map() {
         <div className="text-center">
           <div className="text-4xl mb-4">🗺️</div>
           <p className="text-gray-600">Loading map...</p>
+          {tiles && tiles.length === 0 && <p className="text-xs text-gray-500 mt-2">({tiles.length} tiles)</p>}
         </div>
       </div>
     );
@@ -176,6 +177,20 @@ export default function Map() {
           <p className="text-gray-600 mb-6">Please complete onboarding first.</p>
           <Link to={createPageUrl('Onboarding')}>
             <Button className="bg-green-500 hover:bg-green-600">Go to Onboarding</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (tiles.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-green-50 to-emerald-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">🗺️</div>
+          <p className="text-gray-600 mb-6">No map tiles found. Please start over.</p>
+          <Link to={createPageUrl('Onboarding')}>
+            <Button className="bg-green-500 hover:bg-green-600">Restart Onboarding</Button>
           </Link>
         </div>
       </div>
