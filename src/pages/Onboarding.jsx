@@ -15,7 +15,14 @@ export default function Onboarding() {
 
   const handleComplete = async () => {
     setLoading(true);
+    setError(null);
     try {
+      const isAuthenticated = await base44.auth.isAuthenticated();
+      if (!isAuthenticated) {
+        await base44.auth.redirectToLogin(createPageUrl('Onboarding'));
+        return;
+      }
+      
       const user = await base44.auth.me();
       
       // Create user progress
