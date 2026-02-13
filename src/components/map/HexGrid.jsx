@@ -1,17 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import HexTile from './HexTile';
-
-// Hex grid utilities
-const hexToPixel = (q, r, size) => {
-  const x = size * (3/2 * q);
-  const y = size * (Math.sqrt(3)/2 * q + Math.sqrt(3) * r);
-  return { x, y };
-};
-
-const getHexRadius = (q, r) => {
-  return Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
-};
+import { hexToPixel, getHexRadius, makeHexPath } from './hexUtils';
 
 // Handcrafted irregular island mask
 const isValidTile = (q, r, maxRadius) => {
@@ -65,7 +55,7 @@ const getTileElevation = (q, r) => {
 };
 
 export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloom, canAfford }) {
-  const tileSize = 70; // Larger for better readability
+  const tileSize = 70;
   const padding = 20;
 
   // Filter tiles by week unlock AND island mask
@@ -92,6 +82,9 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
   }, {});
   
   const elevationLevels = Object.keys(tilesByElevation).map(Number).sort((a, b) => a - b);
+
+  // Generate hex path for mask holes
+  const hexPath = makeHexPath(tileSize);
 
   return (
     <div className="w-full h-full overflow-hidden relative">
@@ -187,14 +180,14 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
           </radialGradient>
           
-          {/* Bloom glow (moved from tiles) */}
+          {/* Bloom glow */}
           <radialGradient id="warmGlow">
             <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.6" />
             <stop offset="60%" stopColor="#f59e0b" stopOpacity="0.3" />
             <stop offset="100%" stopColor="#d97706" stopOpacity="0" />
           </radialGradient>
           
-          {/* Elevation-based shadow (softened) */}
+          {/* Elevation-based shadow */}
           <filter id="elevationShadow" x="-100%" y="-100%" width="300%" height="300%">
             <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
             <feOffset dx="0" dy="3" result="offsetblur"/>
@@ -226,12 +219,26 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             <stop offset="0%" stopColor="#5a7052" stopOpacity="0.95" />
             <stop offset="100%" stopColor="#3d4d37" stopOpacity="1" />
           </linearGradient>
+
+          {/* Fog mask - white (show fog) with black holes (reveal) */}
+          <mask id="fogMask">
+            <rect x={minX} y={minY} width={maxX - minX} height={maxY - minY} fill="white" />
+            {/* Cut holes for revealed/restored/bloomed tiles */}
+            {visibleTiles
+              .filter(t => String(t.state || 'fogged').toLowerCase() !== 'fogged')
+              .map((tile) => {
+                const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+                const elevation = getTileElevation(tile.q, tile.r);
+                const elevationOffset = -elevation * 4;
+                return (
+                  <g key={`hole_${tile.q}_${tile.r}`} transform={`translate(${x}, ${y + elevationOffset})`}>
+                    <path d={hexPath} fill="black" />
+                  </g>
+                );
+              })}
+          </mask>
         </defs>
         
-
-        
-
-
         {/* Raised village platform with evening warmth */}
         <g transform={`translate(0, 0)`}>
           {/* Large warm glow (campfire ambience) */}
@@ -278,57 +285,13 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           <text y={10} textAnchor="middle" className="text-4xl" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🏕️</text>
         </g>
 
-        {/* Fog layer underneath tiles */}
-        <g style={{ pointerEvents: 'none' }}>
-          {visibleTiles
-            .filter(t => String(t.state || 'fogged').toLowerCase() === 'fogged')
-            .map((tile) => {
-              const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-              const elevation = getTileElevation(tile.q, tile.r);
-              const elevationOffset = -elevation * 4;
-
-              return (
-                <g key={`fog_${tile.q}_${tile.r}`}>
-                  {/* Light mist base */}
-                  <circle
-                    cx={x}
-                    cy={y + elevationOffset}
-                    r={tileSize * 1.10}
-                    fill="#e7efe3"
-                    opacity={0.38}
-                    style={{ filter: 'blur(18px)' }}
-                  />
-                  {/* Slight depth */}
-                  <circle
-                    cx={x}
-                    cy={y + elevationOffset}
-                    r={tileSize * 0.85}
-                    fill="#cfdacb"
-                    opacity={0.22}
-                    style={{ filter: 'blur(10px)' }}
-                  />
-                  {/* Tiny shadow hint */}
-                  <circle
-                    cx={x}
-                    cy={y + elevationOffset + 6}
-                    r={tileSize * 0.80}
-                    fill="#6b7566"
-                    opacity={0.06}
-                    style={{ filter: 'blur(14px)' }}
-                  />
-                </g>
-              );
-            })}
-        </g>
-
         {/* Render by elevation (bottom to top) with cliff faces */}
         {elevationLevels.map((elevation) => (
           <g key={`elevation_${elevation}`}>
             {tilesByElevation[elevation].map((tile) => {
               const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-              const elevationOffset = -elevation * 4; // Y-offset for real 3D
+              const elevationOffset = -elevation * 4;
               
-              // Check all neighbors for cliff faces
               const neighbors = [
                 { q: tile.q + 1, r: tile.r, angle: 0 },
                 { q: tile.q + 1, r: tile.r - 1, angle: Math.PI / 3 },
@@ -353,7 +316,6 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
                       
                       return (
                         <g key={`cliff_${idx}`} style={{ pointerEvents: 'none' }}>
-                          {/* Vertical cliff wall */}
                           <rect
                             x={edgeX - 30}
                             y={edgeY}
@@ -363,7 +325,6 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
                             opacity="0.9"
                             rx="3"
                           />
-                          {/* Base shadow */}
                           <ellipse
                             cx={edgeX}
                             cy={edgeY + cliffHeight}
@@ -379,7 +340,7 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
                     return null;
                   })}
                   
-                  {/* Interactive tile layer with Y-offset */}
+                  {/* Interactive tile layer */}
                   <g
                     transform={`translate(${x}, ${y + elevationOffset})`}
                     filter="url(#elevationShadow)"
@@ -402,7 +363,26 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           </g>
         ))}
         
-        {/* Large props disabled for now - will reintroduce as clickable events later */}
+        {/* Continuous fog overlay with mask-based reveal */}
+        <g mask="url(#fogMask)" style={{ pointerEvents: 'none' }}>
+          <rect
+            x={minX}
+            y={minY}
+            width={maxX - minX}
+            height={maxY - minY}
+            fill="#e7efe3"
+            opacity="0.85"
+          />
+          <rect
+            x={minX}
+            y={minY}
+            width={maxX - minX}
+            height={maxY - minY}
+            fill="#cfdacb"
+            opacity="0.25"
+            style={{ filter: 'blur(18px)' }}
+          />
+        </g>
       </svg>
     </div>
   );
