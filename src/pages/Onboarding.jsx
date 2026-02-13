@@ -21,28 +21,37 @@ export default function Onboarding() {
     try {
       const user = await base44.auth.me();
       
-      // Create user progress
-      await base44.entities.UserProgress.create({
-        creature_type: 'mossling',
-        glow: 15,
-        dew: 0,
-        sprouts: 0,
-        festival_tokens: 0,
-        total_steps: 0,
-        today_steps: 0,
-        tiles_scouted: 0,
-        tiles_restored: 0,
-        tiles_bloomed: 0,
-        creature_mood: 100,
-        bond_level: 1,
-        current_week: 1,
-        season_day: 1,
-        personal_step_goal: 3000,
-        onboarding_complete: true,
-        last_login_date: new Date().toISOString().split('T')[0],
-        last_blessing_claimed: new Date().toISOString().split('T')[0],
-        created_by: user.email
-      });
+      // Get or create user progress
+      const existing = await base44.entities.UserProgress.filter({ created_by: user.email });
+
+      if (existing?.length) {
+        await base44.entities.UserProgress.update(existing[0].id, {
+          onboarding_complete: true,
+          last_login_date: new Date().toISOString().split('T')[0],
+        });
+      } else {
+        await base44.entities.UserProgress.create({
+          creature_type: 'mossling',
+          glow: 15,
+          dew: 0,
+          sprouts: 0,
+          festival_tokens: 0,
+          total_steps: 0,
+          today_steps: 0,
+          tiles_scouted: 0,
+          tiles_restored: 0,
+          tiles_bloomed: 0,
+          creature_mood: 100,
+          bond_level: 1,
+          current_week: 1,
+          season_day: 1,
+          personal_step_goal: 3000,
+          onboarding_complete: true,
+          last_login_date: new Date().toISOString().split('T')[0],
+          last_blessing_claimed: new Date().toISOString().split('T')[0],
+          created_by: user.email
+        });
+      }
 
       // Create initial hex map tiles with biome clustering
       const tiles = [];
