@@ -45,22 +45,23 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
   const [showAffordError, setShowAffordError] = useState(false);
   
   const handleClick = async () => {
-    console.log('CLICK HANDLER', tile.q, tile.r, 'state:', state, 'canAfford:', canAfford);
+    console.log('[HexTile] 1. CLICK HANDLER - tile:', tile.q, tile.r, 'state:', state, 'canAfford:', canAfford);
     if (isAnimating) {
-      console.log('Already animating, skipping');
+      console.log('[HexTile] Already animating, skipping');
       return;
     }
     
     if (state === 'fogged') {
-      console.log('State is fogged, checking afford:', canAfford.scout);
+      console.log('[HexTile] 2. State is fogged, checking afford:', canAfford.scout);
       if (canAfford.scout) {
-        console.log('Can afford! Starting scout animation');
+        console.log('[HexTile] 3. Can afford! Starting scout animation');
         setIsAnimating(true);
         setAnimationType('scout');
         setTimeout(() => {
-          console.log('Calling onScout with tile:', tile);
+          console.log('[HexTile] 4. About to call onScout with tile:', tile);
           onScout(tile);
           setTimeout(() => {
+            console.log('[HexTile] 5. Scout animation complete, resetting state');
             setIsAnimating(false);
             setAnimationType(null);
           }, 500);
