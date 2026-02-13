@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getAnonKey } from '@/utils/anonIdentity';
+import { getAnonKey } from '@/functions/anonIdentity';
 import HexGrid from '../components/map/HexGrid';
 import ResourceDisplay from '../components/resources/ResourceDisplay';
 const createPageUrl = (pageName) => `/${pageName}`;

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { handleDayRollover } from '@/components/system/DailyQuestGenerator';
-import { getAnonKey } from '@/utils/anonIdentity';
+import { getAnonKey } from '@/functions/anonIdentity';
 const createPageUrl = (pageName) => `/${pageName}`;
 
 export default function Layout({ children, currentPageName }) {

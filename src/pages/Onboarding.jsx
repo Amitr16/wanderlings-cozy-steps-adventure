@@ -5,7 +5,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { getAnonKey } from '@/utils/anonIdentity';
+import { getAnonKey } from '@/functions/anonIdentity';
 import MosslingDisplay from '../components/creature/MosslingDisplay';
 const createPageUrl = (pageName) => `/${pageName}`;
 
