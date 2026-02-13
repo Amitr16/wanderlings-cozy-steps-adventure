@@ -37,17 +37,19 @@ const biomeColors = {
 };
 
 export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAfford, size = 60, elevation = 0 }) {
-  const { state, biome } = tile;
+  // Normalize state to lowercase for robust matching
+  const state = String(tile.state || '').toLowerCase();
+  const { biome } = tile;
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationType, setAnimationType] = useState(null);
+  const [showAffordError, setShowAffordError] = useState(false);
   
   const handleClick = async () => {
     if (isAnimating) return;
     
-    setIsAnimating(true);
-    
     if (state === 'fogged') {
       if (canAfford.scout) {
+        setIsAnimating(true);
         setAnimationType('scout');
         setTimeout(() => {
           onScout(tile);
@@ -57,10 +59,13 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
           }, 500);
         }, 150);
       } else {
-        setIsAnimating(false);
+        // Show "not enough Glow" feedback
+        setShowAffordError(true);
+        setTimeout(() => setShowAffordError(false), 1000);
       }
     } else if (state === 'revealed') {
       if (canAfford.restore) {
+        setIsAnimating(true);
         setAnimationType('restore');
         setTimeout(() => {
           onRestore(tile);
@@ -70,10 +75,12 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
           }, 600);
         }, 150);
       } else {
-        setIsAnimating(false);
+        setShowAffordError(true);
+        setTimeout(() => setShowAffordError(false), 1000);
       }
     } else if (state === 'restored') {
       if (canAfford.bloom) {
+        setIsAnimating(true);
         setAnimationType('bloom');
         setTimeout(() => {
           onBloom(tile);
@@ -83,7 +90,8 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
           }, 800);
         }, 150);
       } else {
-        setIsAnimating(false);
+        setShowAffordError(true);
+        setTimeout(() => setShowAffordError(false), 1000);
       }
     }
   };
@@ -121,7 +129,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
     return `Q ${points[i-1].corner.x},${points[i-1].corner.y} ${p.start.x},${p.start.y} L ${p.end.x},${p.end.y}`;
   }).join(' ') + ` Q ${points[points.length-1].corner.x},${points[points.length-1].corner.y} ${points[0].start.x},${points[0].start.y} Z`;
 
-  const colors = biomeColors[state];
+  const colors = biomeColors[state] ?? biomeColors.fogged;
   const isClickable = state === 'fogged' || state === 'revealed' || state === 'restored';
 
   const largerSize = size * 1.8; // Much larger for aggressive overlap
@@ -299,6 +307,40 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
         {animationType === 'bloom' && <BloomParticles x={0} y={0} size={size} />}
         {animationType === 'restore' && <GlowRipple x={0} y={0} size={size} color="#10B981" />}
         {animationType === 'bloom' && <GlowRipple x={0} y={0} size={size} color="#8B5CF6" />}
+      </AnimatePresence>
+
+      {/* Affordability Error Feedback */}
+      <AnimatePresence>
+        {showAffordError && (
+          <motion.g
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.g
+              animate={{ x: [-2, 2, -2, 2, 0] }}
+              transition={{ duration: 0.4 }}
+            >
+              <rect
+                x={-30}
+                y={-35}
+                width={60}
+                height={20}
+                rx={10}
+                fill="#ef4444"
+                opacity={0.95}
+              />
+              <text
+                y={-22}
+                textAnchor="middle"
+                className="text-xs fill-white font-bold"
+              >
+                Need {state === 'fogged' ? '3' : state === 'revealed' ? '7' : '12'}✨
+              </text>
+            </motion.g>
+          </motion.g>
+        )}
       </AnimatePresence>
 
     </g>
