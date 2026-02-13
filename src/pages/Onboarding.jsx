@@ -19,9 +19,7 @@ export default function Onboarding() {
     setLoading(true);
     setError(null);
     try {
-      // Use test user for development
-      const testUser = { email: 'test@wanderlings.local' };
-      const user = testUser;
+      const user = await base44.auth.me();
       
       // Create user progress
       await base44.entities.UserProgress.create({
