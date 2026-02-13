@@ -5,6 +5,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import { getAnonKey } from '@/utils/anonIdentity';
 import MosslingDisplay from '../components/creature/MosslingDisplay';
 const createPageUrl = (pageName) => `/${pageName}`;
 
@@ -19,10 +20,10 @@ export default function Onboarding() {
     setLoading(true);
     setError(null);
     try {
-      const user = await base44.auth.me();
+      const anonKey = getAnonKey();
       
       // Get or create user progress
-      const existing = await base44.entities.UserProgress.filter({ created_by: user.email });
+      const existing = await base44.entities.UserProgress.filter({ created_by: anonKey });
 
       if (existing?.length) {
         await base44.entities.UserProgress.update(existing[0].id, {
@@ -49,7 +50,7 @@ export default function Onboarding() {
           onboarding_complete: true,
           last_login_date: new Date().toISOString().split('T')[0],
           last_blessing_claimed: new Date().toISOString().split('T')[0],
-          created_by: user.email
+          created_by: anonKey
         });
       }
 
@@ -94,13 +95,13 @@ export default function Onboarding() {
               state: q === 0 && r === 0 ? 'restored' : 'fogged',
               biome: getBiome(q, r),
               week_unlocked: 1,
-              created_by: user.email
+              created_by: anonKey
             });
           }
         }
       }
 
-      const existingTiles = await base44.entities.MapTile.filter({ created_by: user.email });
+      const existingTiles = await base44.entities.MapTile.filter({ created_by: anonKey });
       if (!existingTiles?.length) {
         await base44.entities.MapTile.bulkCreate(tiles);
       }
@@ -128,7 +129,7 @@ export default function Onboarding() {
           target_amount: 2,
           current_progress: 0,
           sprout_reward: 10,
-          created_by: user.email
+          created_by: anonKey
         },
         {
           day: 1,
@@ -140,11 +141,11 @@ export default function Onboarding() {
           current_progress: 0,
           sprout_reward: 5,
           glow_reward: 5,
-          created_by: user.email
+          created_by: anonKey
         }
       ];
 
-      const existingQuests = await base44.entities.Quest.filter({ created_by: user.email, day: 1 });
+      const existingQuests = await base44.entities.Quest.filter({ created_by: anonKey, day: 1 });
       if (!existingQuests?.length) {
         await base44.entities.Quest.bulkCreate(quests);
       }

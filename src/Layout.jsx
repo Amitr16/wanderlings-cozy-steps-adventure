@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { handleDayRollover } from '@/components/system/DailyQuestGenerator';
+import { getAnonKey } from '@/utils/anonIdentity';
 const createPageUrl = (pageName) => `/${pageName}`;
 
 export default function Layout({ children, currentPageName }) {
@@ -12,20 +13,9 @@ export default function Layout({ children, currentPageName }) {
   const { data: progress, isLoading } = useQuery({
     queryKey: ['userProgress'],
     queryFn: async () => {
-      try {
-        let user;
-        try {
-          user = await base44.auth.me();
-        } catch {
-          user = await base44.auth.signInAnonymously();
-        }
-
-        const results = await base44.entities.UserProgress.filter({ created_by: user.email });
-        return results[0];
-      } catch (err) {
-        console.error("Auth/Progress error:", err);
-        return null;
-      }
+      const anonKey = getAnonKey();
+      const results = await base44.entities.UserProgress.filter({ created_by: anonKey });
+      return results[0];
     },
     retry: false
   });

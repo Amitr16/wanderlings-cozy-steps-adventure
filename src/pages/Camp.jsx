@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Map, Target, Plus, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getAnonKey } from '@/utils/anonIdentity';
 const createPageUrl = (pageName) => `/${pageName}`;
 import MosslingDisplay from '../components/creature/MosslingDisplay';
 import ResourceDisplay from '../components/resources/ResourceDisplay';
@@ -16,8 +17,8 @@ export default function Camp() {
   const { data: progress, isLoading } = useQuery({
     queryKey: ['userProgress'],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      const results = await base44.entities.UserProgress.filter({ created_by: user.email });
+      const anonKey = getAnonKey();
+      const results = await base44.entities.UserProgress.filter({ created_by: anonKey });
       return results[0];
     }
   });
@@ -25,8 +26,8 @@ export default function Camp() {
   const { data: quests } = useQuery({
     queryKey: ['quests'],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      return await base44.entities.Quest.filter({ created_by: user.email, day: progress?.season_day || 1 });
+      const anonKey = getAnonKey();
+      return await base44.entities.Quest.filter({ created_by: anonKey, day: progress?.season_day || 1 });
     },
     enabled: !!progress
   });
