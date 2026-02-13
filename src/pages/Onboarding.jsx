@@ -17,13 +17,9 @@ export default function Onboarding() {
     setLoading(true);
     setError(null);
     try {
-      const isAuthenticated = await base44.auth.isAuthenticated();
-      if (!isAuthenticated) {
-        await base44.auth.redirectToLogin(createPageUrl('Onboarding'));
-        return;
-      }
-      
-      const user = await base44.auth.me();
+      // Use test user for development
+      const testUser = { email: 'test@wanderlings.local' };
+      const user = testUser;
       
       // Create user progress
       await base44.entities.UserProgress.create({
