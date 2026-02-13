@@ -76,15 +76,38 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
     }
   };
 
-  // Create hexagon path
+  // Create rounded hexagon path (softer felt edges)
   const points = [];
+  const cornerRadius = 4;
   for (let i = 0; i < 6; i++) {
     const angle = (Math.PI / 3) * i - Math.PI / 2;
+    const nextAngle = (Math.PI / 3) * (i + 1) - Math.PI / 2;
+    
     const px = size * Math.cos(angle);
     const py = size * Math.sin(angle);
-    points.push(`${px},${py}`);
+    const nextPx = size * Math.cos(nextAngle);
+    const nextPy = size * Math.sin(nextAngle);
+    
+    // Calculate control points for rounded corners
+    const dx = nextPx - px;
+    const dy = nextPy - py;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const ratio = cornerRadius / length;
+    
+    points.push({
+      start: { x: px + dx * ratio, y: py + dy * ratio },
+      end: { x: nextPx - dx * ratio, y: nextPy - dy * ratio },
+      corner: { x: nextPx, y: nextPy }
+    });
   }
-  const pathData = `M ${points.join(' L ')} Z`;
+  
+  // Build path with rounded corners
+  const pathData = points.map((p, i) => {
+    if (i === 0) {
+      return `M ${p.start.x},${p.start.y} L ${p.end.x},${p.end.y}`;
+    }
+    return `Q ${points[i-1].corner.x},${points[i-1].corner.y} ${p.start.x},${p.start.y} L ${p.end.x},${p.end.y}`;
+  }).join(' ') + ` Q ${points[points.length-1].corner.x},${points[points.length-1].corner.y} ${points[0].start.x},${points[0].start.y} Z`;
 
   const colors = biomeColors[state];
   const isClickable = 
@@ -94,12 +117,12 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Soft felt hex tile with inner bevel */}
+      {/* Thick felt hex piece with fabric edge */}
       <motion.path
         d={pathData}
         fill={colors.fill}
         stroke={colors.stroke}
-        strokeWidth={state === 'bloomed' ? 2.5 : 2}
+        strokeWidth={state === 'bloomed' ? 4 : 3.5}
         strokeLinecap="round"
         strokeLinejoin="round"
         className={isClickable ? "cursor-pointer" : "cursor-not-allowed"}
@@ -107,25 +130,25 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
         initial={false}
         animate={{
           scale: isAnimating ? 1.1 : 1,
-          opacity: state === 'fogged' ? 0.65 : 1
+          opacity: state === 'fogged' ? 0.7 : 1
         }}
-        whileHover={isClickable ? { scale: 1.06 } : {}}
+        whileHover={isClickable ? { scale: 1.05 } : {}}
         transition={{ duration: 0.25, ease: "easeOut" }}
         style={{
-          filter: 'url(#feltBevel)',
+          filter: 'url(#feltBevel) drop-shadow(0 1px 2px rgba(0,0,0,0.2))',
           paintOrder: 'stroke fill'
         }}
       />
       
-      {/* Inner highlight (felt texture) */}
+      {/* Top highlight (overhead light on felt) */}
       <path
         d={pathData}
         fill="none"
         stroke={colors.innerLight}
-        strokeWidth={1}
-        opacity={state === 'fogged' ? 0.5 : 0.8}
+        strokeWidth={1.5}
+        opacity={state === 'fogged' ? 0.4 : 0.7}
         style={{
-          transform: 'scale(0.92)',
+          transform: 'scale(0.88) translateY(-2px)',
           transformOrigin: 'center'
         }}
       />

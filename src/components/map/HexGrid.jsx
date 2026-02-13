@@ -60,17 +60,31 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
 
   return (
     <div className="w-full h-full overflow-auto rounded-2xl relative">
-      {/* Mossy felt background with evening glow */}
+      {/* Wooden table texture base */}
       <div 
         className="absolute inset-0 rounded-2xl"
         style={{
           background: `
-            radial-gradient(ellipse at 50% 40%, rgba(251, 191, 36, 0.08) 0%, transparent 60%),
-            radial-gradient(ellipse at 30% 70%, rgba(34, 197, 94, 0.06) 0%, transparent 50%),
-            radial-gradient(ellipse at 70% 30%, rgba(16, 185, 129, 0.05) 0%, transparent 45%),
-            linear-gradient(to bottom, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 70%, #81c784 100%)
+            radial-gradient(ellipse at 50% 45%, rgba(251, 191, 36, 0.12) 0%, transparent 55%),
+            linear-gradient(135deg, #8b7355 0%, #6b5743 50%, #5a4632 100%)
           `,
-          boxShadow: 'inset 0 0 80px rgba(0,0,0,0.12), inset 0 -40px 60px rgba(251, 191, 36, 0.05)'
+          boxShadow: 'inset 0 0 100px rgba(0,0,0,0.25), inset 0 4px 20px rgba(255,255,255,0.05)'
+        }}
+      />
+      
+      {/* Felt mat on table */}
+      <div 
+        className="absolute inset-8 rounded-2xl"
+        style={{
+          background: `
+            radial-gradient(ellipse at 50% 40%, rgba(251, 191, 36, 0.15) 0%, transparent 65%),
+            radial-gradient(circle at 50% 50%, #a8b89d 0%, #8fa585 50%, #76926d 100%)
+          `,
+          boxShadow: `
+            0 8px 24px rgba(0,0,0,0.35),
+            inset 0 0 60px rgba(0,0,0,0.08),
+            inset 0 -2px 8px rgba(255,255,255,0.1)
+          `
         }}
       />
 
@@ -150,14 +164,14 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
           </radialGradient>
           
-          {/* Soft felt-style drop shadow */}
-          <filter id="hexShadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
-            <feOffset dx="0" dy="3" result="offsetblur"/>
+          {/* Strong elevated piece shadow */}
+          <filter id="hexShadow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+            <feOffset dx="0" dy="6" result="offsetblur"/>
             <feComponentTransfer>
-              <feFuncA type="linear" slope="0.2"/>
+              <feFuncA type="linear" slope="0.45"/>
             </feComponentTransfer>
-            <feFlood floodColor="#1b4332" floodOpacity="0.18"/>
+            <feFlood floodColor="#1b4332" floodOpacity="0.35"/>
             <feComposite in2="offsetblur" operator="in"/>
             <feMerge>
               <feMergeNode/>
@@ -224,34 +238,43 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           <text y={10} textAnchor="middle" className="text-4xl" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🏕️</text>
         </g>
 
-        {/* Render hex tiles with depth illusion */}
+        {/* Render hex tiles with dramatic layering */}
         {visibleTiles.map((tile) => {
           const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
           
-          // Subtle depth shading based on row position
-          const depthFactor = (tile.r + 3) / 6; // 0 to 1 (top to bottom)
-          const depthOffset = depthFactor * 2; // 0-2px vertical shift
-          const depthDarken = depthFactor * 0.08; // Subtle darkening
+          // Calculate distance from center for perspective
+          const distanceFromCenter = Math.sqrt(tile.q * tile.q + tile.r * tile.r);
+          
+          // Dramatic depth scaling (closer = larger, further = smaller)
+          const depthScale = 1 + (3 - distanceFromCenter) * 0.05; // 0.9 to 1.15
+          
+          // Vertical layering (back tiles lower, front tiles higher)
+          const depthY = tile.r * 3; // Push back tiles down
+          
+          // Lighting (overhead light makes top brighter)
+          const brightness = 1 + (3 - tile.r) * 0.08;
           
           return (
             <g 
               key={`${tile.q}_${tile.r}`} 
               filter="url(#hexShadow)"
               style={{
-                transform: `translateY(${depthOffset}px)`,
-                opacity: 1 - depthDarken
+                transform: `translate(0, ${depthY}px) scale(${depthScale})`,
+                transformOrigin: `${x}px ${y}px`
               }}
             >
-              <HexTile
-                tile={tile}
-                x={x}
-                y={y}
-                size={tileSize}
-                onScout={onScout}
-                onRestore={onRestore}
-                onBloom={onBloom}
-                canAfford={canAfford}
-              />
+              <g style={{ filter: `brightness(${brightness})` }}>
+                <HexTile
+                  tile={tile}
+                  x={x}
+                  y={y}
+                  size={tileSize}
+                  onScout={onScout}
+                  onRestore={onRestore}
+                  onBloom={onBloom}
+                  canAfford={canAfford}
+                />
+              </g>
             </g>
           );
         })}
