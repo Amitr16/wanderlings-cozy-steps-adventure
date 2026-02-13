@@ -149,23 +149,32 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Invisible interaction layer - hex only for logic/clicks */}
-      <motion.path
-        d={pathData}
+      {/* Completely invisible interaction zone */}
+      <circle
+        r={size * 0.9}
         fill="transparent"
         stroke="none"
         className={isClickable ? "cursor-pointer" : "cursor-not-allowed"}
         onClick={handleClick}
-        initial={false}
-        whileHover={isClickable ? { 
-          fill: 'rgba(255, 255, 255, 0.15)',
-          stroke: 'rgba(255, 255, 255, 0.3)',
-          strokeWidth: 2
-        } : {}}
-        transition={{ duration: 0.2 }}
+        style={{ pointerEvents: 'all' }}
       />
 
-      {/* No fog overlay - fogged tiles handled by terrain layer */}
+      {/* Hover highlight only */}
+      {isClickable && (
+        <motion.circle
+          r={size * 0.85}
+          fill="transparent"
+          stroke="transparent"
+          strokeWidth={0}
+          whileHover={{ 
+            fill: 'rgba(255, 255, 255, 0.12)',
+            stroke: 'rgba(255, 255, 255, 0.25)',
+            strokeWidth: 2
+          }}
+          transition={{ duration: 0.2 }}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
 
       {/* Bloomed glow */}
       {state === 'bloomed' && (
