@@ -104,13 +104,13 @@ export default function Camp() {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-800">🏕️ Your Camp</h1>
             <div className="flex items-center gap-3">
-              <ResourceDisplay type="glow" amount={progress?.glow || 0} size="md" />
-              {progress?.dew > 0 && (
+              <ResourceDisplay type="glow" amount={progress ? progress.glow : 0} size="md" />
+              {progress && progress.dew > 0 && (
                 <div className="text-sm text-gray-600">
                   +{progress.dew} Dew 💧
                 </div>
               )}
-              <ResourceDisplay type="sprouts" amount={progress?.sprouts || 0} size="md" />
+              <ResourceDisplay type="sprouts" amount={progress ? progress.sprouts : 0} size="md" />
             </div>
           </div>
         </div>

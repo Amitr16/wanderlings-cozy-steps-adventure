@@ -1,4 +1,5 @@
 import { base44 } from '@/api/base44Client';
+import { getAnonUser } from './anonUser';
 
 // Generate quests for a specific day based on the 28-day blueprint
 export async function generateDailyQuests(day, userEmail, personalStepGoal = 3000) {
@@ -171,7 +172,7 @@ export async function handleDayRollover(progress) {
   const lastLogin = progress.last_login_date;
 
   if (lastLogin !== today) {
-    const user = await base44.auth.me();
+    const user = getAnonUser();
     
     // Calculate new season day
     let newSeasonDay = progress.season_day + 1;
