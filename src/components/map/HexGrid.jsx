@@ -465,7 +465,7 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
         
         {/* Heavy fog layer ON TOP (covers everything) */}
         <g opacity={0.85} style={{ pointerEvents: 'none' }}>
-          {visibleTiles.filter(t => t.state === 'fogged').map((tile) => {
+          {visibleTiles.filter(t => String(t.state || '').toLowerCase() === 'fogged').map((tile) => {
             const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
             const elevation = getTileElevation(tile.q, tile.r);
             const elevationOffset = -elevation * 4;
