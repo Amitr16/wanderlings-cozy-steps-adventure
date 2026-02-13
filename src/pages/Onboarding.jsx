@@ -40,20 +40,46 @@ export default function Onboarding() {
         created_by: user.email
       });
 
-      // Create initial hex map tiles (radius 3 for Week 1)
+      // Create initial hex map tiles with biome clustering
       const tiles = [];
-      const biomes = ['mosswood', 'firefly', 'brookside', 'mushroom', 'blossom', 'pebble'];
+      
+      // Define biome regions (clustered, not random)
+      const getBiome = (q, r) => {
+        // Mosswood cluster (northwest)
+        if (q <= -1 && r <= 0) return 'mosswood';
+        // Mushroom pocket (northeast)
+        if (q >= 1 && r <= -1) return 'mushroom';
+        // Firefly glade (south)
+        if (r >= 2) return 'firefly';
+        // Brookside (east edge)
+        if (q >= 2) return 'brookside';
+        // Blossom (near center)
+        if (Math.abs(q) <= 1 && Math.abs(r) <= 1) return 'blossom';
+        // Pebble (scattered)
+        return 'pebble';
+      };
       
       const radius = 3;
       for (let q = -radius; q <= radius; q++) {
         for (let r = -radius; r <= radius; r++) {
           const s = -q - r;
           if (Math.abs(s) <= radius) {
+            // Apply island mask (organic boundary)
+            const tileRadius = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
+            if (tileRadius === radius) {
+              // Remove specific edge tiles for organic coastline
+              if ((q === radius && r === 0) || 
+                  (q === 0 && r === radius) ||
+                  (q === -radius && r === radius)) {
+                continue;
+              }
+            }
+            
             tiles.push({
               q,
               r,
-              state: q === 0 && r === 0 ? 'restored' : 'fogged', // Center tile starts restored
-              biome: biomes[Math.floor(Math.random() * biomes.length)],
+              state: q === 0 && r === 0 ? 'restored' : 'fogged',
+              biome: getBiome(q, r),
               week_unlocked: 1,
               created_by: user.email
             });
