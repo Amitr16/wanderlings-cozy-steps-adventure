@@ -68,6 +68,39 @@ export default function HexGrid({ tiles = [], currentWeek = 1, onScout, onRestor
         className="relative z-10"
         style={{ isolation: "isolate" }}
       >
+        <defs>
+          <mask id="fogMask">
+            {/* Start fully fogged (white shows fog) */}
+            <rect
+              x={minX}
+              y={minY}
+              width={maxX - minX}
+              height={maxY - minY}
+              fill="white"
+            />
+
+            {/* Cut holes for cleared tiles */}
+            {visibleTiles.map((tile) => {
+              if (tile.state === 'fogged') return null;
+
+              const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+
+              return (
+                <motion.circle
+                  key={`mask_${tile.q}_${tile.r}`}
+                  cx={x}
+                  cy={y}
+                  r={0}
+                  initial={{ r: 0 }}
+                  animate={{ r: tileSize * 1.6 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  fill="black"
+                />
+              );
+            })}
+          </mask>
+        </defs>
+
         {/* Tiny ambient particles */}
         {[...Array(5)].map((_, i) => (
           <motion.text
@@ -84,8 +117,8 @@ export default function HexGrid({ tiles = [], currentWeek = 1, onScout, onRestor
           </motion.text>
         ))}
 
-        {/* Global fog overlay */}
-        <g style={{ pointerEvents: 'none' }}>
+        {/* Global fog overlay with mask */}
+        <g mask="url(#fogMask)" style={{ pointerEvents: 'none' }}>
           <rect
             x={minX}
             y={minY}
@@ -99,26 +132,9 @@ export default function HexGrid({ tiles = [], currentWeek = 1, onScout, onRestor
         {/* Tiles */}
         {visibleTiles.map((tile) => {
           const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-          const isCleared = tile.state !== 'fogged';
 
           return (
             <g key={tile.id || `${tile.q}_${tile.r}`} transform={`translate(${x}, ${y})`}>
-
-              {/* Expanding reveal animation */}
-              {isCleared && (
-                <motion.circle
-                  r={0}
-                  fill="#000"
-                  initial={{ r: 0 }}
-                  animate={{ r: tileSize * 1.6 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                  style={{
-                    mixBlendMode: "destination-out",
-                    pointerEvents: "none"
-                  }}
-                />
-              )}
-
               <HexTile
                 tile={tile}
                 size={tileSize}
