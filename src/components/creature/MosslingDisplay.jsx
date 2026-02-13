@@ -1,77 +1,193 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
 
-export default function MosslingDisplay({ mood = 100, size = 'large', animate = true }) {
-  const sizes = {
-    small: 'w-16 h-16',
-    medium: 'w-24 h-24',
-    large: 'w-32 h-32',
-    xl: 'w-48 h-48'
+const sizeClasses = {
+  sm: 'text-4xl',
+  md: 'text-6xl',
+  lg: 'text-8xl',
+  xl: 'text-9xl'
+};
+
+const moodStates = {
+  sleepy: { emoji: '😴', animation: 'gentle-bob' },
+  curious: { emoji: '👀', animation: 'look-around' },
+  happy: { emoji: '💚', animation: 'bounce' },
+  radiant: { emoji: '✨', animation: 'spin-celebrate' }
+};
+
+export default function MosslingDisplay({ 
+  size = 'md', 
+  mood = 100, 
+  bondLevel = 1,
+  state = 'happy', // 'sleepy', 'curious', 'happy', 'radiant'
+  animate = true,
+  onInteract = null 
+}) {
+  const moodState = moodStates[state] || moodStates.happy;
+  
+  const getAnimation = () => {
+    if (!animate) return {};
+    
+    switch (moodState.animation) {
+      case 'gentle-bob':
+        return {
+          y: [0, -5, 0],
+          transition: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+        };
+      case 'look-around':
+        return {
+          rotate: [0, -10, 10, -5, 5, 0],
+          transition: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+        };
+      case 'bounce':
+        return {
+          y: [0, -15, 0],
+          rotate: [0, 5, -5, 0],
+          transition: { duration: 1.2, repeat: Infinity, ease: "easeOut" }
+        };
+      case 'spin-celebrate':
+        return {
+          rotate: [0, 360],
+          scale: [1, 1.15, 1],
+          transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+        };
+      default:
+        return {};
+    }
   };
 
-  const moodEmoji = mood >= 80 ? '😊' : mood >= 50 ? '😌' : '😔';
-
   return (
-    <div className="relative flex items-center justify-center">
-      {/* Glow effect */}
-      {animate && (
+    <motion.div 
+      className="relative inline-flex flex-col items-center cursor-pointer"
+      onClick={onInteract}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      {/* Radiant glow for happy/radiant states */}
+      {animate && (state === 'happy' || state === 'radiant') && (
         <motion.div
-          className="absolute inset-0 bg-gradient-radial from-amber-300/30 via-green-300/20 to-transparent rounded-full blur-xl"
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(34, 197, 94, 0.4) 0%, transparent 70%)',
+            filter: 'blur(25px)',
+            width: '150%',
+            height: '150%',
+            left: '-25%',
+            top: '-25%'
+          }}
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
+            scale: [1, 1.3, 1],
+            opacity: [0.4, 0.7, 0.4]
           }}
           transition={{
-            duration: 3,
+            duration: 2.5,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
       )}
 
-      {/* Creature */}
+      {/* Mossling character */}
       <motion.div
-        className={`${sizes[size]} relative z-10 flex items-center justify-center`}
-        animate={animate ? {
-          y: [0, -8, 0],
-        } : {}}
+        className={`${sizeClasses[size]} relative z-10`}
+        style={{ 
+          filter: 'drop-shadow(0 6px 16px rgba(34, 197, 94, 0.4))'
+        }}
+        animate={getAnimation()}
+      >
+        🌿
+      </motion.div>
+
+      {/* Expression indicator */}
+      <motion.div
+        className="text-2xl absolute -top-3 -right-3"
+        initial={{ scale: 0 }}
+        animate={{
+          scale: [0, 1.2, 1],
+          rotate: state === 'happy' ? [0, 15, -15, 0] : 0
+        }}
         transition={{
-          duration: 2.5,
-          repeat: Infinity,
-          ease: "easeInOut"
+          scale: { duration: 0.3 },
+          rotate: { duration: 1.5, repeat: Infinity }
         }}
       >
-        <div className="relative">
-          {/* Mossling body */}
-          <div className="text-6xl" style={{ filter: 'drop-shadow(0 4px 12px rgba(45, 80, 22, 0.3))' }}>
-            🌿
-          </div>
-          
-          {/* Mood indicator */}
-          <div className="absolute -top-1 -right-1 text-2xl">
-            {moodEmoji}
-          </div>
+        {moodState.emoji}
+      </motion.div>
 
-          {/* Sparkle effect */}
-          {animate && mood >= 80 && (
+      {/* Sparkle particles for radiant state */}
+      {animate && state === 'radiant' && (
+        <>
+          {[...Array(3)].map((_, i) => (
             <motion.div
-              className="absolute -top-2 -right-2"
+              key={i}
+              className="absolute text-xl"
+              style={{ 
+                top: `${20 + i * 10}%`, 
+                left: `${70 + i * 15}%` 
+              }}
               animate={{
-                scale: [0, 1, 0],
-                rotate: [0, 180, 360],
+                y: [-10, -30],
+                x: [0, (i - 1) * 10],
+                opacity: [1, 0],
+                scale: [0.5, 1.5],
+                rotate: [0, 360]
+              }}
+              transition={{
+                duration: 1.8,
+                repeat: Infinity,
+                delay: i * 0.3,
+                ease: "easeOut"
+              }}
+            >
+              ✨
+            </motion.div>
+          ))}
+        </>
+      )}
+
+      {/* Fireflies for curious state */}
+      {animate && state === 'curious' && (
+        <>
+          {[...Array(2)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-sm"
+              style={{ 
+                top: `${30 + i * 20}%`, 
+                left: i === 0 ? '10%' : '85%'
+              }}
+              animate={{
+                y: [-5, 5, -5],
+                x: [0, 5, 0],
+                opacity: [0.5, 1, 0.5]
               }}
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                repeatDelay: 1
+                delay: i * 0.5,
+                ease: "easeInOut"
               }}
             >
-              <Sparkles className="w-4 h-4 text-amber-400" />
+              ✨
             </motion.div>
-          )}
+          ))}
+        </>
+      )}
+
+      {/* Bond level indicator (subtle) */}
+      {bondLevel > 1 && (
+        <div className="mt-2 flex gap-1">
+          {[...Array(bondLevel)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="w-2 h-2 rounded-full bg-green-400"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: i * 0.1 }}
+            />
+          ))}
         </div>
-      </motion.div>
-    </div>
+      )}
+    </motion.div>
   );
 }
