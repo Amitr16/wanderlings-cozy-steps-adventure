@@ -228,41 +228,102 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           </linearGradient>
         </defs>
         
-        {/* Continuous terrain - the main visual (not tiles) */}
+        {/* Unified continuous terrain base - single landmass */}
         <g>
+          {/* Deep blur base for seamless blending */}
           {visibleTiles.map((tile) => {
             const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
             const elevation = getTileElevation(tile.q, tile.r);
-            const elevationOffset = -elevation * 4; // Real Y-offset for 3D
+            const elevationOffset = -elevation * 4;
             
-            const colors = tile.state === 'fogged' ? '#a8b5a0' :
-                          tile.state === 'revealed' ? '#c8d5bf' :
-                          tile.state === 'restored' ? '#7fbf7a' : '#5da958';
+            const baseColor = tile.state === 'fogged' ? '#8a9585' :
+                             tile.state === 'revealed' ? '#b5c4af' :
+                             tile.state === 'restored' ? '#6faf6a' : '#4d9948';
             
             return (
-              <g key={`terrain_${tile.q}_${tile.r}`}>
-                {/* Main terrain circles with Y-offset */}
+              <circle
+                key={`base_${tile.q}_${tile.r}`}
+                cx={x}
+                cy={y + elevationOffset}
+                r={tileSize * 2.2}
+                fill={baseColor}
+                opacity={0.8}
+                style={{ filter: 'blur(45px)' }}
+              />
+            );
+          })}
+          
+          {/* Mid-layer for color definition */}
+          {visibleTiles.map((tile) => {
+            const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+            const elevation = getTileElevation(tile.q, tile.r);
+            const elevationOffset = -elevation * 4;
+            
+            const midColor = tile.state === 'fogged' ? '#95a090' :
+                            tile.state === 'revealed' ? '#c0d0ba' :
+                            tile.state === 'restored' ? '#75b570' : '#53a34e';
+            
+            return (
+              <circle
+                key={`mid_${tile.q}_${tile.r}`}
+                cx={x}
+                cy={y + elevationOffset}
+                r={tileSize * 1.5}
+                fill={midColor}
+                opacity={0.85}
+                style={{ filter: 'blur(25px)' }}
+              />
+            );
+          })}
+          
+          {/* Top layer for surface detail */}
+          {visibleTiles.map((tile) => {
+            const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+            const elevation = getTileElevation(tile.q, tile.r);
+            const elevationOffset = -elevation * 4;
+            
+            const topColor = tile.state === 'fogged' ? '#a5b0a0' :
+                            tile.state === 'revealed' ? '#cad9c5' :
+                            tile.state === 'restored' ? '#7fc075' : '#5aad55';
+            
+            return (
+              <circle
+                key={`top_${tile.q}_${tile.r}`}
+                cx={x}
+                cy={y + elevationOffset}
+                r={tileSize * 0.95}
+                fill={topColor}
+                opacity={0.9}
+                style={{ filter: 'blur(12px)' }}
+              />
+            );
+          })}
+        </g>
+        
+        {/* Heavy fog layer only over fogged tiles */}
+        <g opacity={0.85}>
+          {visibleTiles.filter(t => t.state === 'fogged').map((tile) => {
+            const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+            const elevation = getTileElevation(tile.q, tile.r);
+            const elevationOffset = -elevation * 4;
+            
+            return (
+              <g key={`fog_${tile.q}_${tile.r}`}>
                 <circle
                   cx={x}
                   cy={y + elevationOffset}
-                  r={tileSize * 1.4}
-                  fill={colors}
-                  opacity={0.95}
-                  style={{ filter: 'blur(18px)' }}
+                  r={tileSize * 1.6}
+                  fill="#4a5548"
+                  opacity={0.6}
+                  style={{ filter: 'blur(28px)' }}
                 />
                 <circle
                   cx={x}
                   cy={y + elevationOffset}
                   r={tileSize * 1.1}
-                  fill={colors}
-                  opacity={0.9}
-                  style={{ filter: 'blur(10px)' }}
-                />
-                <circle
-                  cx={x}
-                  cy={y + elevationOffset}
-                  r={tileSize * 0.85}
-                  fill={colors}
+                  fill="#3a4538"
+                  opacity={0.5}
+                  style={{ filter: 'blur(18px)' }}
                 />
               </g>
             );

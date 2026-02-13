@@ -165,22 +165,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
         transition={{ duration: 0.2 }}
       />
 
-      {/* Fog overlay - subtle only */}
-      <AnimatePresence>
-        {state === 'fogged' && (
-          <motion.circle
-            cx={0}
-            cy={0}
-            r={size * 0.8}
-            fill="#4a5a45"
-            opacity={0.5}
-            initial={{ opacity: 0.5 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{ filter: 'blur(12px)', pointerEvents: 'none' }}
-          />
-        )}
-      </AnimatePresence>
+      {/* No fog overlay - fogged tiles handled by terrain layer */}
 
       {/* Bloomed glow */}
       {state === 'bloomed' && (
