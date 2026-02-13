@@ -1,44 +1,22 @@
-// Shared hex utilities for HexGrid and HexTile
+// Flat-top hex axial grid utilities (perfect packing)
 
-export const hexToPixel = (q, r, size) => {
-  const x = size * (3/2 * q);
-  const y = size * (Math.sqrt(3)/2 * q + Math.sqrt(3) * r);
+export const SQRT3 = Math.sqrt(3);
+
+// Axial (q, r) -> pixel (x, y) for FLAT-TOP hexes
+export function hexToPixel(q, r, size) {
+  const x = size * (3 / 2) * q;
+  const y = size * SQRT3 * (r + q / 2);
   return { x, y };
-};
+}
 
-export const getHexRadius = (q, r) => {
-  return Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
-};
-
-// Generate rounded hex path (used for both rendering and hit detection)
-export const makeHexPath = (size, cornerRadius = 4) => {
-  const points = [];
-  
+// Flat-top hex path centered at (0,0)
+export function hexPath(size) {
+  const pts = [];
   for (let i = 0; i < 6; i++) {
-    const angle = (Math.PI / 3) * i - Math.PI / 2;
-    const nextAngle = (Math.PI / 3) * (i + 1) - Math.PI / 2;
-    
-    const px = size * Math.cos(angle);
-    const py = size * Math.sin(angle);
-    const nextPx = size * Math.cos(nextAngle);
-    const nextPy = size * Math.sin(nextAngle);
-    
-    const dx = nextPx - px;
-    const dy = nextPy - py;
-    const length = Math.sqrt(dx * dx + dy * dy);
-    const ratio = cornerRadius / length;
-    
-    points.push({
-      start: { x: px + dx * ratio, y: py + dy * ratio },
-      end: { x: nextPx - dx * ratio, y: nextPy - dy * ratio },
-      corner: { x: nextPx, y: nextPy }
-    });
+    const angle = (Math.PI / 180) * (60 * i); // 0,60,120...
+    const x = size * Math.cos(angle);
+    const y = size * Math.sin(angle);
+    pts.push(`${x},${y}`);
   }
-  
-  return points.map((p, i) => {
-    if (i === 0) {
-      return `M ${p.start.x},${p.start.y} L ${p.end.x},${p.end.y}`;
-    }
-    return `Q ${points[i-1].corner.x},${points[i-1].corner.y} ${p.start.x},${p.start.y} L ${p.end.x},${p.end.y}`;
-  }).join(' ') + ` Q ${points[points.length-1].corner.x},${points[points.length-1].corner.y} ${points[0].start.x},${points[0].start.y} Z`;
-};
+  return `M ${pts.join(' L ')} Z`;
+}
