@@ -46,18 +46,19 @@ export default function Map() {
 
   const scoutMutation = useMutation({
     mutationFn: async (tile) => {
+      const p = requireProgress();
       const cost = 3;
-      if (progress.glow < cost) throw new Error('Not enough Glow');
+      if (p.glow < cost) throw new Error('Not enough Glow');
 
       // Add slight delay for animation anticipation
       await new Promise(resolve => setTimeout(resolve, 150));
 
       console.log('Scouting tile:', tile.q, tile.r, 'from', tile.state, 'to revealed');
       await base44.entities.MapTile.update(tile.id, { state: 'revealed' });
-      await base44.entities.UserProgress.update(progress.id, {
-        glow: progress.glow - cost,
-        tiles_scouted: progress.tiles_scouted + 1,
-        sprouts: progress.sprouts + 2
+      await base44.entities.UserProgress.update(p.id, {
+        glow: p.glow - cost,
+        tiles_scouted: p.tiles_scouted + 1,
+        sprouts: p.sprouts + 2
       });
 
       // Update quest progress
