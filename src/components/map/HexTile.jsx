@@ -184,15 +184,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
         />
       )}
 
-      {/* Completely invisible interaction zone - on top */}
-      <circle
-        r={size * 0.9}
-        fill="transparent"
-        stroke="none"
-        className="cursor-pointer"
-        onClick={handleClick}
-        style={{ pointerEvents: 'all' }}
-      />
+
 
       {/* Bloomed glow */}
       {state === 'bloomed' && (
@@ -224,7 +216,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3 }}
           >
-            <foreignObject x={-8} y={-8} width={16} height={16}>
+            <foreignObject x={-8} y={-8} width={16} height={16} style={{ pointerEvents: 'none' }}>
               <Lock className="text-gray-600 w-4 h-4" />
             </foreignObject>
             {canAfford.scout && (
@@ -343,6 +335,16 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
           </motion.g>
         )}
       </AnimatePresence>
+
+      {/* Click target ALWAYS on top */}
+      <circle
+        r={size * 1.05}
+        fill="transparent"
+        stroke="none"
+        className="cursor-pointer"
+        onClick={handleClick}
+        style={{ pointerEvents: 'all' }}
+      />
 
     </g>
   );
