@@ -289,52 +289,63 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           <text y={10} textAnchor="middle" className="text-4xl" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🏕️</text>
         </g>
 
-        {/* Render by elevation (bottom to top) */}
+        {/* Render by elevation (bottom to top) with cliff faces */}
         {elevationLevels.map((elevation) => (
           <g key={`elevation_${elevation}`}>
             {tilesByElevation[elevation].map((tile) => {
               const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-              const elevationOffset = -elevation * 2; // Negative = higher visual position
+              const elevationOffset = -elevation * 3; // Stronger height
               
-              // Check neighbors for cliff rendering
+              // Check all neighbors for cliff faces
               const neighbors = [
-                { q: tile.q + 1, r: tile.r },
-                { q: tile.q - 1, r: tile.r },
-                { q: tile.q, r: tile.r + 1 },
-                { q: tile.q, r: tile.r - 1 },
-                { q: tile.q + 1, r: tile.r - 1 },
-                { q: tile.q - 1, r: tile.r + 1 }
+                { q: tile.q + 1, r: tile.r, angle: 0 },
+                { q: tile.q + 1, r: tile.r - 1, angle: Math.PI / 3 },
+                { q: tile.q, r: tile.r - 1, angle: 2 * Math.PI / 3 },
+                { q: tile.q - 1, r: tile.r, angle: Math.PI },
+                { q: tile.q - 1, r: tile.r + 1, angle: 4 * Math.PI / 3 },
+                { q: tile.q, r: tile.r + 1, angle: 5 * Math.PI / 3 }
               ];
-              
-              const cliffEdges = neighbors.filter(n => {
-                const neighborTile = visibleTiles.find(t => t.q === n.q && t.r === n.r);
-                if (!neighborTile) return false;
-                const neighborElevation = getTileElevation(n.q, n.r);
-                return elevation - neighborElevation >= 4; // Cliff threshold
-              });
               
               return (
                 <g key={`${tile.q}_${tile.r}`}>
-                  {/* Cliff faces (vertical sides) */}
-                  {cliffEdges.map((edge, idx) => {
-                    const angle = Math.atan2(edge.r - tile.r, edge.q - tile.q);
-                    const cliffX = x + Math.cos(angle) * tileSize * 0.8;
-                    const cliffY = y + Math.sin(angle) * tileSize * 0.8 + elevationOffset;
+                  {/* Render cliff faces for elevation differences */}
+                  {neighbors.map((n, idx) => {
+                    const neighborTile = visibleTiles.find(t => t.q === n.q && t.r === n.r);
+                    const neighborElevation = neighborTile ? getTileElevation(n.q, n.r) : 0;
+                    const heightDiff = elevation - neighborElevation;
                     
-                    return (
-                      <rect
-                        key={`cliff_${idx}`}
-                        x={cliffX - 20}
-                        y={cliffY}
-                        width="40"
-                        height={elevation}
-                        fill="url(#cliffGradient)"
-                        opacity="0.7"
-                      />
-                    );
+                    if (heightDiff >= 3) {
+                      const edgeX = x + Math.cos(n.angle) * tileSize * 0.7;
+                      const edgeY = y + Math.sin(n.angle) * tileSize * 0.7 + elevationOffset;
+                      
+                      return (
+                        <g key={`cliff_${idx}`}>
+                          {/* Vertical cliff face */}
+                          <rect
+                            x={edgeX - 25}
+                            y={edgeY}
+                            width="50"
+                            height={heightDiff * 3}
+                            fill="url(#cliffGradient)"
+                            opacity="0.85"
+                            rx="2"
+                          />
+                          {/* Shadow at cliff base */}
+                          <ellipse
+                            cx={edgeX}
+                            cy={edgeY + heightDiff * 3}
+                            rx="28"
+                            ry="6"
+                            fill="#1b4332"
+                            opacity="0.4"
+                          />
+                        </g>
+                      );
+                    }
+                    return null;
                   })}
                   
-                  {/* Tile with elevation */}
+                  {/* Tile surface */}
                   <g 
                     filter="url(#elevationShadow)"
                     style={{
@@ -358,6 +369,31 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             })}
           </g>
         ))}
+        
+        {/* Large overlapping terrain features */}
+        <g opacity="0.6">
+          {/* Ancient tree cluster (spans 3 tiles) */}
+          <g transform="translate(-60, -80)">
+            <ellipse cx="0" cy="10" rx="45" ry="12" fill="#3d4d37" opacity="0.5" />
+            <text fontSize="48" y="0">🌲</text>
+            <text fontSize="36" x="30" y="-20">🌲</text>
+            <text fontSize="40" x="-35" y="5">🌲</text>
+          </g>
+          
+          {/* Mushroom grove (spans 2 tiles) */}
+          <g transform="translate(70, 50)">
+            <ellipse cx="0" cy="8" rx="35" ry="10" fill="#3d4d37" opacity="0.4" />
+            <text fontSize="32" x="-20" y="0">🍄</text>
+            <text fontSize="28" x="15" y="-5">🍄</text>
+            <text fontSize="24" x="5" y="10">🍄</text>
+          </g>
+          
+          {/* Large moss-covered boulder */}
+          <g transform="translate(-30, 90)">
+            <ellipse cx="0" cy="8" rx="40" ry="12" fill="#1b4332" opacity="0.5" />
+            <text fontSize="56" y="0">🪨</text>
+          </g>
+        </g>
         
         {/* Cliff gradient */}
         <defs>

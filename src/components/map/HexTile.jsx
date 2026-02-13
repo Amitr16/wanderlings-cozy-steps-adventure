@@ -117,39 +117,33 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Terrain piece (borderless when revealed/restored) */}
+      {/* Completely borderless terrain (no hex outline) */}
       <motion.path
         d={pathData}
         fill={colors.fill}
-        stroke={state === 'fogged' ? colors.stroke : 'none'}
-        strokeWidth={state === 'fogged' ? 2 : 0}
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        stroke="none"
         className={isClickable ? "cursor-pointer" : "cursor-not-allowed"}
         onClick={handleClick}
         initial={false}
         animate={{
-          scale: isAnimating ? 1.08 : 1,
-          opacity: state === 'fogged' ? 0.75 : 1
+          scale: isAnimating ? 1.05 : 1,
+          opacity: state === 'fogged' ? 0.8 : 1
         }}
-        whileHover={isClickable ? { scale: 1.04 } : {}}
+        whileHover={isClickable ? { scale: 1.03 } : {}}
         transition={{ duration: 0.3, ease: "easeOut" }}
         style={{
-          filter: `brightness(${1 + elevation * 0.02})`,
-          paintOrder: 'fill stroke'
+          filter: `brightness(${1 + elevation * 0.03})`,
         }}
       />
       
-      {/* Subtle top lighting based on elevation */}
-      {elevation > 2 && (
+      {/* Soft edge gradient for blending */}
+      {state !== 'fogged' && (
         <path
           d={pathData}
-          fill="none"
-          stroke="rgba(255, 255, 255, 0.15)"
-          strokeWidth={1.2}
-          opacity={0.6}
+          fill="url(#edgeBlend)"
+          opacity={0.15}
           style={{
-            transform: 'scale(0.9) translateY(-1px)',
+            transform: 'scale(1.02)',
             transformOrigin: 'center'
           }}
         />
@@ -290,12 +284,16 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
         {animationType === 'bloom' && <GlowRipple x={0} y={0} size={size} color="#8B5CF6" />}
       </AnimatePresence>
 
-      {/* Soft warm glow gradient (evening light) */}
+      {/* Gradients for blending and glow */}
       <defs>
         <radialGradient id="warmGlow">
           <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.4" />
           <stop offset="60%" stopColor="#f59e0b" stopOpacity="0.2" />
           <stop offset="100%" stopColor="#d97706" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="edgeBlend">
+          <stop offset="80%" stopColor="transparent" />
+          <stop offset="100%" stopColor="#4a5a45" stopOpacity="0.2" />
         </radialGradient>
       </defs>
     </g>
