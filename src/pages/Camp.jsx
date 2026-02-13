@@ -74,8 +74,8 @@ export default function Camp() {
       return glowFromSteps;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['userProgress']);
-      queryClient.invalidateQueries(['quests']);
+      queryClient.invalidateQueries({ queryKey: ['userProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['quests'] });
     }
   });
 

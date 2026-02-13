@@ -75,10 +75,21 @@ export default function Map() {
         }
       }
     },
+    onMutate: async (tile) => {
+      await queryClient.cancelQueries({ queryKey: ['mapTiles'] });
+      const prev = queryClient.getQueryData(['mapTiles']);
+      queryClient.setQueryData(['mapTiles'], (old = []) =>
+        old.map(t => (t.id === tile.id ? { ...t, state: 'revealed' } : t))
+      );
+      return { prev };
+    },
+    onError: (err, tile, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['mapTiles'], ctx.prev);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries(['userProgress']);
-      queryClient.invalidateQueries(['mapTiles']);
-      queryClient.invalidateQueries(['quests']);
+      queryClient.invalidateQueries({ queryKey: ['userProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['mapTiles'] });
+      queryClient.invalidateQueries({ queryKey: ['quests'] });
     }
   });
 
@@ -108,10 +119,21 @@ export default function Map() {
         }
       }
     },
+    onMutate: async (tile) => {
+      await queryClient.cancelQueries({ queryKey: ['mapTiles'] });
+      const prev = queryClient.getQueryData(['mapTiles']);
+      queryClient.setQueryData(['mapTiles'], (old = []) =>
+        old.map(t => (t.id === tile.id ? { ...t, state: 'restored' } : t))
+      );
+      return { prev };
+    },
+    onError: (err, tile, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['mapTiles'], ctx.prev);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries(['userProgress']);
-      queryClient.invalidateQueries(['mapTiles']);
-      queryClient.invalidateQueries(['quests']);
+      queryClient.invalidateQueries({ queryKey: ['userProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['mapTiles'] });
+      queryClient.invalidateQueries({ queryKey: ['quests'] });
     }
   });
 
@@ -141,10 +163,21 @@ export default function Map() {
         }
       }
     },
+    onMutate: async (tile) => {
+      await queryClient.cancelQueries({ queryKey: ['mapTiles'] });
+      const prev = queryClient.getQueryData(['mapTiles']);
+      queryClient.setQueryData(['mapTiles'], (old = []) =>
+        old.map(t => (t.id === tile.id ? { ...t, state: 'bloomed' } : t))
+      );
+      return { prev };
+    },
+    onError: (err, tile, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['mapTiles'], ctx.prev);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries(['userProgress']);
-      queryClient.invalidateQueries(['mapTiles']);
-      queryClient.invalidateQueries(['quests']);
+      queryClient.invalidateQueries({ queryKey: ['userProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['mapTiles'] });
+      queryClient.invalidateQueries({ queryKey: ['quests'] });
     }
   });
 
