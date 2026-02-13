@@ -100,7 +100,10 @@ export default function Onboarding() {
         }
       }
 
-      await base44.entities.MapTile.bulkCreate(tiles);
+      const existingTiles = await base44.entities.MapTile.filter({ created_by: user.email });
+      if (!existingTiles?.length) {
+        await base44.entities.MapTile.bulkCreate(tiles);
+      }
 
       // Create Day 1 quests
       const quests = [
