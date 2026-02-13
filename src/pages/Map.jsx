@@ -53,17 +53,21 @@ export default function Map() {
 
   const scoutMutation = useMutation({
     mutationFn: async (tile) => {
+      console.log('[Map scoutMutation] 6. mutationFn START - tile:', tile.q, tile.r);
       const p = requireProgress();
       const cost = 3;
       if (p.glow < cost) throw new Error('Not enough Glow');
 
-      console.log('Scouting tile:', tile.q, tile.r, 'from', tile.state, 'to revealed');
+      console.log('[Map scoutMutation] 7. Calling backend update for tile:', tile.id);
       await base44.entities.MapTile.update(tile.id, { state: 'revealed' });
+      console.log('[Map scoutMutation] 8. MapTile updated, now updating UserProgress');
+      
       await base44.entities.UserProgress.update(p.id, {
         glow: p.glow - cost,
         tiles_scouted: p.tiles_scouted + 1,
         sprouts: p.sprouts + 2
       });
+      console.log('[Map scoutMutation] 9. UserProgress updated, updating quest progress');
 
       // Update quest progress
       for (const quest of quests) {
@@ -74,22 +78,31 @@ export default function Map() {
           });
         }
       }
+      console.log('[Map scoutMutation] 10. mutationFn COMPLETE');
     },
     onMutate: async (tile) => {
+      console.log('[Map scoutMutation] onMutate START - optimistic update');
       await queryClient.cancelQueries({ queryKey: ['mapTiles'] });
       const prev = queryClient.getQueryData(['mapTiles']);
-      queryClient.setQueryData(['mapTiles'], (old = []) =>
-        old.map(t => (t.id === tile.id ? { ...t, state: 'revealed' } : t))
-      );
+      console.log('[Map scoutMutation] onMutate - current cache:', prev?.length, 'tiles');
+      
+      queryClient.setQueryData(['mapTiles'], (old = []) => {
+        const updated = old.map(t => (t.id === tile.id ? { ...t, state: 'revealed' } : t));
+        console.log('[Map scoutMutation] onMutate - OPTIMISTIC tile state changed to revealed');
+        return updated;
+      });
       return { prev };
     },
     onError: (err, tile, ctx) => {
+      console.log('[Map scoutMutation] onError - rolling back:', err.message);
       if (ctx?.prev) queryClient.setQueryData(['mapTiles'], ctx.prev);
     },
     onSuccess: () => {
+      console.log('[Map scoutMutation] 11. onSuccess - INVALIDATING queries');
       queryClient.invalidateQueries({ queryKey: ['userProgress'] });
       queryClient.invalidateQueries({ queryKey: ['mapTiles'] });
       queryClient.invalidateQueries({ queryKey: ['quests'] });
+      console.log('[Map scoutMutation] 12. Queries invalidated, refetch should fire now');
     }
   });
 
