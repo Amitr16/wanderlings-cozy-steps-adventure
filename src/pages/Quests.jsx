@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from '../utils';
+const createPageUrl = (pageName) => `/${pageName}`;
 import QuestCard from '../components/quests/QuestCard';
 import ResourceDisplay from '../components/resources/ResourceDisplay';
 import { motion } from 'framer-motion';

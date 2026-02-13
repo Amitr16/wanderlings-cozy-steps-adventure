@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { createPageUrl } from './utils';
+const createPageUrl = (pageName) => `/${pageName}`;
 
 export default function Layout({ children, currentPageName }) {
   const navigate = useNavigate();
