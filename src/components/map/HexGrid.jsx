@@ -351,6 +351,49 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           <text y={10} textAnchor="middle" className="text-4xl" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🏕️</text>
         </g>
 
+        {/* Soft mist fog layer - UNDER tiles so clicks work */}
+        <g style={{ pointerEvents: 'none' }}>
+          {visibleTiles
+            .filter(t => String(t.state || 'fogged').toLowerCase() === 'fogged')
+            .map((tile) => {
+              const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+              const elevation = getTileElevation(tile.q, tile.r);
+              const elevationOffset = -elevation * 4;
+
+              return (
+                <g key={`fog_${tile.q}_${tile.r}`}>
+                  {/* Wide, light mist base (prevents holes) */}
+                  <circle
+                    cx={x}
+                    cy={y + elevationOffset}
+                    r={tileSize * 1.55}
+                    fill="#e7efe3"
+                    opacity={0.38}
+                    style={{ filter: 'blur(18px)' }}
+                  />
+                  {/* Slight depth */}
+                  <circle
+                    cx={x}
+                    cy={y + elevationOffset}
+                    r={tileSize * 1.10}
+                    fill="#cfdacb"
+                    opacity={0.22}
+                    style={{ filter: 'blur(10px)' }}
+                  />
+                  {/* Tiny shadow hint so it doesn't look flat */}
+                  <circle
+                    cx={x}
+                    cy={y + elevationOffset + 6}
+                    r={tileSize * 1.05}
+                    fill="#6b7566"
+                    opacity={0.06}
+                    style={{ filter: 'blur(14px)' }}
+                  />
+                </g>
+              );
+            })}
+        </g>
+
         {/* Render by elevation (bottom to top) with cliff faces */}
         {elevationLevels.map((elevation) => (
           <g key={`elevation_${elevation}`}>
@@ -476,49 +519,6 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
               <text fontSize="40" x="-18" y="28">🍄</text>
             </g>
           )}
-        </g>
-        
-        {/* Soft mist fog layer ON TOP */}
-        <g style={{ pointerEvents: 'none' }}>
-          {visibleTiles
-            .filter(t => String(t.state || 'fogged').toLowerCase() === 'fogged')
-            .map((tile) => {
-              const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-              const elevation = getTileElevation(tile.q, tile.r);
-              const elevationOffset = -elevation * 4;
-
-              return (
-                <g key={`fog_${tile.q}_${tile.r}`}>
-                  {/* Wide, light mist base (prevents holes) */}
-                  <circle
-                    cx={x}
-                    cy={y + elevationOffset}
-                    r={tileSize * 1.55}
-                    fill="#e7efe3"
-                    opacity={0.38}
-                    style={{ filter: 'blur(18px)' }}
-                  />
-                  {/* Slight depth */}
-                  <circle
-                    cx={x}
-                    cy={y + elevationOffset}
-                    r={tileSize * 1.10}
-                    fill="#cfdacb"
-                    opacity={0.22}
-                    style={{ filter: 'blur(10px)' }}
-                  />
-                  {/* Tiny shadow hint so it doesn't look flat */}
-                  <circle
-                    cx={x}
-                    cy={y + elevationOffset + 6}
-                    r={tileSize * 1.05}
-                    fill="#6b7566"
-                    opacity={0.06}
-                    style={{ filter: 'blur(14px)' }}
-                  />
-                </g>
-              );
-            })}
         </g>
       </svg>
     </div>
