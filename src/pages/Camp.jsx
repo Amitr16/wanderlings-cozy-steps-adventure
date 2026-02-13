@@ -117,22 +117,103 @@ export default function Camp() {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Creature Section */}
+        {/* Creature Section - The Star of the Show */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-green-100 to-emerald-200 rounded-3xl p-8 mb-6 border-4 border-green-300 shadow-xl"
+          className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 rounded-3xl p-8 mb-6 border-4 border-green-200 shadow-2xl relative overflow-hidden"
         >
-          <div className="flex flex-col items-center text-center">
-            <MosslingDisplay size="xl" mood={progress?.creature_mood || 100} animate={true} />
-            <h2 className="text-2xl font-bold text-gray-800 mt-4 mb-2">Your Mossling</h2>
-            <p className="text-gray-600 mb-4">
-              {progress?.creature_mood >= 80 ? 'So happy to see you! 💚' : 'Glad you\'re here! 🌿'}
-            </p>
-            <div className="bg-white/60 rounded-full px-6 py-2 border-2 border-green-300">
-              <span className="text-sm text-gray-600">Mood: </span>
-              <span className="font-bold text-green-600">{progress?.creature_mood || 100}%</span>
+          {/* Ambient fireflies */}
+          <div className="absolute inset-0 pointer-events-none">
+            {[...Array(5)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute text-xs"
+                style={{
+                  left: `${20 + i * 15}%`,
+                  top: `${10 + (i % 3) * 30}%`
+                }}
+                animate={{
+                  y: [-10, 10, -10],
+                  x: [-5, 5, -5],
+                  opacity: [0.3, 0.8, 0.3]
+                }}
+                transition={{
+                  duration: 3 + i,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: i * 0.5
+                }}
+              >
+                ✨
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="flex flex-col items-center text-center relative z-10">
+            <MosslingDisplay 
+              size="xl" 
+              mood={progress?.creature_mood || 100}
+              bondLevel={progress?.bond_level || 1}
+              state={
+                progress?.creature_mood >= 90 ? 'radiant' :
+                progress?.creature_mood >= 70 ? 'happy' :
+                progress?.creature_mood >= 50 ? 'curious' : 'sleepy'
+              }
+              animate={true}
+              onInteract={() => {
+                // Easter egg: Mossling reacts to taps
+              }}
+            />
+            
+            <motion.h2 
+              className="text-3xl font-bold text-gray-800 mt-6 mb-2"
+              animate={{ y: [0, -2, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              Your Mossling
+            </motion.h2>
+            
+            <motion.p 
+              className="text-lg text-gray-700 mb-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              {progress?.creature_mood >= 90 ? '✨ Absolutely radiant today! ✨' :
+               progress?.creature_mood >= 70 ? '💚 Feeling playful and energetic!' :
+               progress?.creature_mood >= 50 ? '👀 Curiously watching the forest...' :
+               '😴 Resting peacefully by the fire...'}
+            </motion.p>
+
+            <div className="flex gap-4 items-center">
+              <div className="bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 border-2 border-green-300 shadow-sm">
+                <span className="text-sm text-gray-600">Mood </span>
+                <span className="font-bold text-green-600 text-lg">{progress?.creature_mood || 100}%</span>
+              </div>
+              
+              {progress?.bond_level > 1 && (
+                <div className="bg-purple-50 rounded-full px-6 py-3 border-2 border-purple-300 shadow-sm">
+                  <span className="text-sm text-gray-600">Bond </span>
+                  <span className="font-bold text-purple-600 text-lg">Level {progress?.bond_level}</span>
+                </div>
+              )}
             </div>
+
+            {/* Today's steps reaction */}
+            {progress?.today_steps > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 bg-blue-50 rounded-2xl px-6 py-3 border-2 border-blue-200"
+              >
+                <p className="text-sm text-blue-700">
+                  <span className="font-bold">"{progress.today_steps >= progress.personal_step_goal 
+                    ? "You did it! The forest feels alive!" 
+                    : "Keep walking! Each step helps me restore our home!"}"</span>
+                </p>
+              </motion.div>
+            )}
           </div>
         </motion.div>
 
@@ -195,10 +276,10 @@ export default function Camp() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold mb-2">Explore the Map</h3>
-                  <p className="text-green-100">Reveal and restore forest tiles</p>
+                  <h3 className="text-xl font-bold mb-2">Restore the Forest</h3>
+                  <p className="text-green-100">Help Mossling heal the woodland</p>
                 </div>
-                <Map className="w-12 h-12 opacity-80" />
+                <div className="text-4xl">🌿</div>
               </div>
             </motion.div>
           </Link>
