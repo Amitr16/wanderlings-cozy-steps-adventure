@@ -96,7 +96,7 @@ export default function HexGrid({
             
             {/* Black hexes cut fog for revealed tiles */}
             {visibleTiles.map(tile => {
-              const s = String(tile.state || 'fogged').toLowerCase();
+              const s = String(tile.state ?? 'fogged').toLowerCase().trim();
               if (s === 'fogged') return null;
 
               const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
