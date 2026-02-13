@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { handleDayRollover } from '@/components/system/DailyQuestGenerator';
 const createPageUrl = (pageName) => `/${pageName}`;
 
 export default function Layout({ children, currentPageName }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: progress, isLoading } = useQuery({
     queryKey: ['userProgress'],
@@ -25,6 +27,18 @@ export default function Layout({ children, currentPageName }) {
       }
     }
   }, [progress, isLoading, currentPageName, navigate]);
+
+  useEffect(() => {
+    // Handle daily rollover
+    if (progress && progress.onboarding_complete && currentPageName !== 'Onboarding') {
+      handleDayRollover(progress).then((result) => {
+        if (result.dayChanged) {
+          queryClient.invalidateQueries(['userProgress']);
+          queryClient.invalidateQueries(['quests']);
+        }
+      });
+    }
+  }, [progress, currentPageName, queryClient]);
 
   // Show loading while checking progress
   if (isLoading && currentPageName !== 'Onboarding') {
