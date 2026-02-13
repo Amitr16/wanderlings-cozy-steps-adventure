@@ -98,9 +98,12 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
           }, 800);
         }, 150);
       } else {
+        console.log('[HexTile] Cannot afford bloom');
         setShowAffordError(true);
         setTimeout(() => setShowAffordError(false), 1000);
       }
+    } else {
+      console.log('[HexTile] ERROR - state not handled:', state, '(expected fogged/revealed/restored)');
     }
   };
 
