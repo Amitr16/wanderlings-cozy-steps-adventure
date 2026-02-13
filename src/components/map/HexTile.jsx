@@ -30,6 +30,8 @@ export default function HexTile({
   const state = String(tile?.state || 'fogged').toLowerCase();
   const style = stateStyle[state] || stateStyle.fogged;
   const [showAffordError, setShowAffordError] = useState(false);
+  const [isHover, setIsHover] = useState(false);
+  const [showHint, setShowHint] = useState(false);
 
   const handleAction = () => {
     // Instant feedback on tap
@@ -77,14 +79,14 @@ export default function HexTile({
         </text>
       )}
 
-      {/* Cost hint */}
-      {label && (
+      {/* Cost hint (only on hover/tap) */}
+      {(isHover || showHint) && label && (
         <text
           textAnchor="middle"
-          y={size + 14}
+          y={size * 0.70}
           fontSize={12}
           fill="#7c5a00"
-          opacity={0.9}
+          opacity={0.95}
           style={{ pointerEvents: 'none' }}
         >
           {label}
@@ -95,15 +97,21 @@ export default function HexTile({
       <path
         d={pathD}
         fill="transparent"
+        onPointerEnter={() => setIsHover(true)}
+        onPointerLeave={() => setIsHover(false)}
         onPointerDown={(e) => {
           console.log("🔍 HEX POINTER DOWN", { q: tile.q, r: tile.r, state, target: e.target });
           e.preventDefault();
           e.stopPropagation();
+          setShowHint(true);
+          window.setTimeout(() => setShowHint(false), 900);
           handleAction();
         }}
         onTouchStart={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          setShowHint(true);
+          window.setTimeout(() => setShowHint(false), 900);
           handleAction();
         }}
         style={{ cursor: 'pointer', pointerEvents: 'all', touchAction: 'manipulation' }}
