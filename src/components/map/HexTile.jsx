@@ -64,9 +64,6 @@ export default function HexTile({
 
   return (
     <g>
-      {/* Visible tile face (invisible hitbox) */}
-      <path d={pathD} fill="transparent" stroke="none" />
-
       {/* Emoji (only once revealed+) */}
       {state !== 'fogged' && (
         <text
