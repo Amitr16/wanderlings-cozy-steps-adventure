@@ -167,7 +167,8 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
 
   return (
     <g transform={`translate(${x}, ${y})`} style={{ isolation: 'isolate' }}>
-      {/* Hover highlight only */}
+      <g style={{ pointerEvents: 'none' }}>
+        {/* Hover highlight only */}
       {isClickable && (
         <motion.circle
           r={size * 0.85}
@@ -335,6 +336,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
           </motion.g>
         )}
       </AnimatePresence>
+      </g>
 
       {/* Click target ALWAYS on top */}
       <circle
