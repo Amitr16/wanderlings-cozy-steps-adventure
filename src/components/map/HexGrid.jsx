@@ -85,18 +85,32 @@ export default function HexGrid({
               if (tile.state === 'fogged') return null;
 
               const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+              const gradId = `grad_${tile.q}_${tile.r}`;
 
               return (
-                <motion.circle
-                  key={`mask_${tile.q}_${tile.r}`}
-                  cx={x}
-                  cy={y}
-                  r={0}
-                  initial={{ r: 0 }}
-                  animate={{ r: tileSize * 1.6 }}
-                  transition={{ duration: 0.6, ease: 'easeOut' }}
-                  fill="black"
-                />
+                <React.Fragment key={`mask_${tile.q}_${tile.r}`}>
+                  <motion.radialGradient
+                    id={gradId}
+                    gradientUnits="userSpaceOnUse"
+                    cx={x}
+                    cy={y}
+                    r={tileSize * 1.6}
+                  >
+                    <stop offset="0%" stopColor="black" />
+                    <stop offset="70%" stopColor="black" />
+                    <stop offset="100%" stopColor="white" />
+                  </motion.radialGradient>
+
+                  <motion.circle
+                    cx={x}
+                    cy={y}
+                    r={0}
+                    initial={{ r: 0 }}
+                    animate={{ r: tileSize * 1.6 }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    fill={`url(#${gradId})`}
+                  />
+                </React.Fragment>
               );
             })}
           </mask>
