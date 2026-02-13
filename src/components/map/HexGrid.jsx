@@ -76,7 +76,7 @@ export default function HexGrid({
             <stop offset="100%" stopColor="#5f8a55" />
           </linearGradient>
 
-          <mask id="fogMask">
+          <mask id="fogMask" maskUnits="userSpaceOnUse">
             {/* Black rect makes everything visible initially */}
             <rect
               x={minX}
@@ -88,7 +88,8 @@ export default function HexGrid({
             
             {/* White hexes hide fog for fogged tiles */}
             {visibleTiles.map(tile => {
-              if (tile.state !== 'fogged') return null;
+              const s = String(tile.state || 'fogged').toLowerCase();
+              if (s === 'fogged') return null;
 
               const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
 
