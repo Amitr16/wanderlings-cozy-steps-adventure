@@ -13,30 +13,55 @@ const getHexRadius = (q, r) => {
   return Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
 };
 
-// Handcrafted island mask - defines organic boundary
+// Handcrafted irregular island mask
 const isValidTile = (q, r, maxRadius) => {
   const radius = getHexRadius(q, r);
   if (radius > maxRadius) return false;
   
-  // Create irregular coastline by removing specific edge tiles
+  // Asymmetric cutouts for natural silhouette
   if (radius === maxRadius) {
-    // Remove some outer tiles to create organic shape
     if ((q === maxRadius && r === 0) || 
         (q === 0 && r === maxRadius) ||
-        (q === -maxRadius && r === maxRadius)) {
+        (q === -maxRadius && r === maxRadius) ||
+        (q === maxRadius && r === -maxRadius)) {
       return false;
     }
   }
   
-  // Remove corner pockets for more natural shape
   if (radius === maxRadius - 1) {
     if ((q === maxRadius - 1 && r === 1) || 
-        (q === 1 && r === maxRadius - 1)) {
+        (q === 1 && r === maxRadius - 1) ||
+        (q === -2 && r === maxRadius)) {
       return false;
     }
   }
   
+  // Create valley (lower area on one side)
+  if (q === -maxRadius + 1 && Math.abs(r) <= 1) return false;
+  
   return true;
+};
+
+// Assign elevation to tiles (height variation)
+const getTileElevation = (q, r) => {
+  const radius = getHexRadius(q, r);
+  
+  // Village is highest
+  if (q === 0 && r === 0) return 12;
+  
+  // Inner ring elevated
+  if (radius === 1) return 8;
+  
+  // Create elevated cluster (northwest)
+  if (q <= -1 && r <= 0 && radius <= 2) return 6;
+  
+  // Random small hills
+  if ((q === 2 && r === 1) || (q === 1 && r === 2)) return 4;
+  
+  // Most tiles at base level
+  if (radius <= 2) return 2;
+  
+  return 0;
 };
 
 export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloom, canAfford }) {
@@ -57,6 +82,16 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
   const maxY = Math.max(...visibleTiles.map(t => hexToPixel(t.q, t.r, tileSize).y)) + padding;
 
   const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
+
+  // Group tiles by elevation for layered rendering
+  const tilesByElevation = visibleTiles.reduce((acc, tile) => {
+    const elevation = getTileElevation(tile.q, tile.r);
+    if (!acc[elevation]) acc[elevation] = [];
+    acc[elevation].push({ ...tile, elevation });
+    return acc;
+  }, {});
+  
+  const elevationLevels = Object.keys(tilesByElevation).map(Number).sort((a, b) => a - b);
 
   return (
     <div className="w-full h-full overflow-auto rounded-2xl relative">
@@ -164,14 +199,14 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
           </radialGradient>
           
-          {/* Strong elevated piece shadow */}
-          <filter id="hexShadow" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
-            <feOffset dx="0" dy="6" result="offsetblur"/>
+          {/* Elevation-based shadow (stronger) */}
+          <filter id="elevationShadow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="12"/>
+            <feOffset dx="-2" dy="8" result="offsetblur"/>
             <feComponentTransfer>
-              <feFuncA type="linear" slope="0.45"/>
+              <feFuncA type="linear" slope="0.6"/>
             </feComponentTransfer>
-            <feFlood floodColor="#1b4332" floodOpacity="0.35"/>
+            <feFlood floodColor="#1b4332" floodOpacity="0.5"/>
             <feComposite in2="offsetblur" operator="in"/>
             <feMerge>
               <feMergeNode/>
@@ -179,18 +214,34 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
             </feMerge>
           </filter>
           
-          {/* Soft inner bevel for felt texture */}
-          <filter id="feltBevel">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
-            <feOffset dx="0" dy="-1" result="topLight"/>
-            <feFlood floodColor="white" floodOpacity="0.15"/>
-            <feComposite in2="topLight" operator="in"/>
-            <feMerge>
-              <feMergeNode/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
+          {/* Terrain texture patterns */}
+          <pattern id="mossTexture" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="0.5" fill="rgba(80,100,70,0.15)"/>
+            <circle cx="6" cy="5" r="0.5" fill="rgba(60,80,50,0.1)"/>
+          </pattern>
         </defs>
+        
+        {/* Continuous terrain base (blended surface) */}
+        <g opacity="0.3">
+          {visibleTiles.map((tile) => {
+            const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+            const points = [];
+            for (let i = 0; i < 6; i++) {
+              const angle = (Math.PI / 3) * i - Math.PI / 2;
+              const px = x + tileSize * 1.1 * Math.cos(angle);
+              const py = y + tileSize * 1.1 * Math.sin(angle);
+              points.push(`${px},${py}`);
+            }
+            return (
+              <path
+                key={`terrain_${tile.q}_${tile.r}`}
+                d={`M ${points.join(' L ')} Z`}
+                fill="url(#mossTexture)"
+                opacity="0.4"
+              />
+            );
+          })}
+        </g>
 
         {/* Raised village platform with evening warmth */}
         <g transform={`translate(0, 0)`}>
@@ -238,46 +289,83 @@ export default function HexGrid({ tiles, currentWeek, onScout, onRestore, onBloo
           <text y={10} textAnchor="middle" className="text-4xl" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🏕️</text>
         </g>
 
-        {/* Render hex tiles with dramatic layering */}
-        {visibleTiles.map((tile) => {
-          const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-          
-          // Calculate distance from center for perspective
-          const distanceFromCenter = Math.sqrt(tile.q * tile.q + tile.r * tile.r);
-          
-          // Dramatic depth scaling (closer = larger, further = smaller)
-          const depthScale = 1 + (3 - distanceFromCenter) * 0.05; // 0.9 to 1.15
-          
-          // Vertical layering (back tiles lower, front tiles higher)
-          const depthY = tile.r * 3; // Push back tiles down
-          
-          // Lighting (overhead light makes top brighter)
-          const brightness = 1 + (3 - tile.r) * 0.08;
-          
-          return (
-            <g 
-              key={`${tile.q}_${tile.r}`} 
-              filter="url(#hexShadow)"
-              style={{
-                transform: `translate(0, ${depthY}px) scale(${depthScale})`,
-                transformOrigin: `${x}px ${y}px`
-              }}
-            >
-              <g style={{ filter: `brightness(${brightness})` }}>
-                <HexTile
-                  tile={tile}
-                  x={x}
-                  y={y}
-                  size={tileSize}
-                  onScout={onScout}
-                  onRestore={onRestore}
-                  onBloom={onBloom}
-                  canAfford={canAfford}
-                />
-              </g>
-            </g>
-          );
-        })}
+        {/* Render by elevation (bottom to top) */}
+        {elevationLevels.map((elevation) => (
+          <g key={`elevation_${elevation}`}>
+            {tilesByElevation[elevation].map((tile) => {
+              const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+              const elevationOffset = -elevation * 2; // Negative = higher visual position
+              
+              // Check neighbors for cliff rendering
+              const neighbors = [
+                { q: tile.q + 1, r: tile.r },
+                { q: tile.q - 1, r: tile.r },
+                { q: tile.q, r: tile.r + 1 },
+                { q: tile.q, r: tile.r - 1 },
+                { q: tile.q + 1, r: tile.r - 1 },
+                { q: tile.q - 1, r: tile.r + 1 }
+              ];
+              
+              const cliffEdges = neighbors.filter(n => {
+                const neighborTile = visibleTiles.find(t => t.q === n.q && t.r === n.r);
+                if (!neighborTile) return false;
+                const neighborElevation = getTileElevation(n.q, n.r);
+                return elevation - neighborElevation >= 4; // Cliff threshold
+              });
+              
+              return (
+                <g key={`${tile.q}_${tile.r}`}>
+                  {/* Cliff faces (vertical sides) */}
+                  {cliffEdges.map((edge, idx) => {
+                    const angle = Math.atan2(edge.r - tile.r, edge.q - tile.q);
+                    const cliffX = x + Math.cos(angle) * tileSize * 0.8;
+                    const cliffY = y + Math.sin(angle) * tileSize * 0.8 + elevationOffset;
+                    
+                    return (
+                      <rect
+                        key={`cliff_${idx}`}
+                        x={cliffX - 20}
+                        y={cliffY}
+                        width="40"
+                        height={elevation}
+                        fill="url(#cliffGradient)"
+                        opacity="0.7"
+                      />
+                    );
+                  })}
+                  
+                  {/* Tile with elevation */}
+                  <g 
+                    filter="url(#elevationShadow)"
+                    style={{
+                      transform: `translateY(${elevationOffset}px)`
+                    }}
+                  >
+                    <HexTile
+                      tile={tile}
+                      x={x}
+                      y={y}
+                      size={tileSize}
+                      onScout={onScout}
+                      onRestore={onRestore}
+                      onBloom={onBloom}
+                      canAfford={canAfford}
+                      elevation={elevation}
+                    />
+                  </g>
+                </g>
+              );
+            })}
+          </g>
+        ))}
+        
+        {/* Cliff gradient */}
+        <defs>
+          <linearGradient id="cliffGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#5a7052" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#3d4d37" stopOpacity="1" />
+          </linearGradient>
+        </defs>
       </svg>
     </div>
   );

@@ -36,7 +36,7 @@ const biomeColors = {
   }
 };
 
-export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAfford, size = 60 }) {
+export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAfford, size = 60, elevation = 0 }) {
   const { state, biome } = tile;
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationType, setAnimationType] = useState(null);
@@ -117,41 +117,43 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Thick felt hex piece with fabric edge */}
+      {/* Terrain piece (borderless when revealed/restored) */}
       <motion.path
         d={pathData}
         fill={colors.fill}
-        stroke={colors.stroke}
-        strokeWidth={state === 'bloomed' ? 4 : 3.5}
+        stroke={state === 'fogged' ? colors.stroke : 'none'}
+        strokeWidth={state === 'fogged' ? 2 : 0}
         strokeLinecap="round"
         strokeLinejoin="round"
         className={isClickable ? "cursor-pointer" : "cursor-not-allowed"}
         onClick={handleClick}
         initial={false}
         animate={{
-          scale: isAnimating ? 1.1 : 1,
-          opacity: state === 'fogged' ? 0.7 : 1
+          scale: isAnimating ? 1.08 : 1,
+          opacity: state === 'fogged' ? 0.75 : 1
         }}
-        whileHover={isClickable ? { scale: 1.05 } : {}}
-        transition={{ duration: 0.25, ease: "easeOut" }}
+        whileHover={isClickable ? { scale: 1.04 } : {}}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         style={{
-          filter: 'url(#feltBevel) drop-shadow(0 1px 2px rgba(0,0,0,0.2))',
-          paintOrder: 'stroke fill'
+          filter: `brightness(${1 + elevation * 0.02})`,
+          paintOrder: 'fill stroke'
         }}
       />
       
-      {/* Top highlight (overhead light on felt) */}
-      <path
-        d={pathData}
-        fill="none"
-        stroke={colors.innerLight}
-        strokeWidth={1.5}
-        opacity={state === 'fogged' ? 0.4 : 0.7}
-        style={{
-          transform: 'scale(0.88) translateY(-2px)',
-          transformOrigin: 'center'
-        }}
-      />
+      {/* Subtle top lighting based on elevation */}
+      {elevation > 2 && (
+        <path
+          d={pathData}
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.15)"
+          strokeWidth={1.2}
+          opacity={0.6}
+          style={{
+            transform: 'scale(0.9) translateY(-1px)',
+            transformOrigin: 'center'
+          }}
+        />
+      )}
 
       {/* Soft wool-like fog overlay */}
       <AnimatePresence>
