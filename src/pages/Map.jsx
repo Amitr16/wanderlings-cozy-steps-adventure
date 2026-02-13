@@ -39,6 +39,11 @@ export default function Map() {
     enabled: !!progress
   });
 
+  const requireProgress = () => {
+    if (!progress) throw new Error('Progress not loaded. Complete onboarding first.');
+    return progress;
+  };
+
   const scoutMutation = useMutation({
     mutationFn: async (tile) => {
       const cost = 3;
