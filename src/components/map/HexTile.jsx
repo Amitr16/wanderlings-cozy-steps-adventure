@@ -332,18 +332,18 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
               transition={{ duration: 0.4 }}
             >
               <rect
-                x={-30}
-                y={-35}
-                width={60}
-                height={20}
-                rx={10}
+                x={-45}
+                y={-40}
+                width={90}
+                height={28}
+                rx={12}
                 fill="#ef4444"
-                opacity={0.95}
+                opacity={0.98}
               />
               <text
-                y={-22}
+                y={-18}
                 textAnchor="middle"
-                className="text-xs fill-white font-bold"
+                className="text-sm fill-white font-bold"
               >
                 Need {state === 'fogged' ? '3' : state === 'revealed' ? '7' : '12'}✨
               </text>
