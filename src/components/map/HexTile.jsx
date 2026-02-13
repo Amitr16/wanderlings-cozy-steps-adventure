@@ -11,12 +11,12 @@ const biomeEmojis = {
   pebble: '🪨'
 };
 
-// Clean, readable palette (debug-friendly)
+// Uniform terrain color — fog controls visibility, not tile color
 const stateStyle = {
-  fogged:   { fill: '#cfdacb', stroke: '#9aa79a', iconOpacity: 0.35 },
-  revealed: { fill: '#b8d2b4', stroke: '#7e9b7e', iconOpacity: 0.85 },
-  restored: { fill: '#7fbf7a', stroke: '#3d7f3a', iconOpacity: 1.0 },
-  bloomed:  { fill: '#5da958', stroke: '#2f6b2a', iconOpacity: 1.0 }
+  fogged:   { fill: '#8fa585', iconOpacity: 0.3 },
+  revealed: { fill: '#8fa585', iconOpacity: 0.7 },
+  restored: { fill: '#8fa585', iconOpacity: 1.0 },
+  bloomed:  { fill: '#8fa585', iconOpacity: 1.0 }
 };
 
 export default function HexTile({
@@ -65,7 +65,7 @@ export default function HexTile({
   return (
     <g>
       {/* Visible tile face */}
-      <path d={pathD} fill={style.fill} stroke={style.stroke} strokeWidth={3} />
+      <path d={pathD} fill={style.fill} stroke="none" />
 
       {/* Emoji (only once revealed+) */}
       {state !== 'fogged' && (

@@ -144,8 +144,8 @@ export default function HexGrid({
             y={minY}
             width={maxX - minX}
             height={maxY - minY}
-            fill="#e7efe3"
-            opacity="0.9"
+            fill="#dfe8db"
+            opacity="0.85"
           />
         </g>
       </svg>
