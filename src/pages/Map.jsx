@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ const createPageUrl = (pageName) => `/${pageName}`;
 export default function Map() {
   const queryClient = useQueryClient();
 
-  const { data: progress, isLoading: loadingProgress } = useQuery({
+  const { data: progress, isLoading: loadingProgress, refetch } = useQuery({
     queryKey: ['userProgress'],
     queryFn: async () => {
       const user = getAnonUser();
@@ -21,6 +21,13 @@ export default function Map() {
       return results && results[0] ? results[0] : null;
     }
   });
+
+  useEffect(() => {
+    if (!progress && !loadingProgress) {
+      const timer = setTimeout(() => refetch(), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [progress, loadingProgress, refetch]);
 
   const { data: tiles = [], isLoading: loadingTiles } = useQuery({
     queryKey: ['mapTiles'],
