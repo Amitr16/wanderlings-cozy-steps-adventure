@@ -5,7 +5,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { getAnonUser } from '../components/system/anonUser';
+
 import MosslingDisplay from '../components/creature/MosslingDisplay';
 const createPageUrl = (pageName) => `/${pageName}`;
 
@@ -20,7 +20,7 @@ export default function Onboarding() {
     setLoading(true);
     setError(null);
     try {
-      const user = getAnonUser();
+      const user = await base44.auth.me();
       
       // Get or create user progress
       const existing = await base44.entities.UserProgress.filter({ created_by: user.email });
