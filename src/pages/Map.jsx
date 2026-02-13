@@ -43,6 +43,9 @@ export default function Map() {
       const cost = 3;
       if (progress.glow < cost) throw new Error('Not enough Glow');
 
+      // Add slight delay for animation anticipation
+      await new Promise(resolve => setTimeout(resolve, 150));
+
       await base44.entities.MapTile.update(tile.id, { state: 'revealed' });
       await base44.entities.UserProgress.update(progress.id, {
         glow: progress.glow - cost,
@@ -71,6 +74,9 @@ export default function Map() {
     mutationFn: async (tile) => {
       const cost = 7;
       if (progress.glow < cost) throw new Error('Not enough Glow');
+
+      // Add anticipation delay
+      await new Promise(resolve => setTimeout(resolve, 150));
 
       const sproutReward = Math.floor(Math.random() * 9) + 10; // 10-18 Sprouts
 
@@ -103,6 +109,9 @@ export default function Map() {
     mutationFn: async (tile) => {
       const cost = 12;
       if (progress.glow < cost) throw new Error('Not enough Glow');
+
+      // Longer anticipation for special moment
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       const sproutReward = Math.floor(Math.random() * 11) + 15; // 15-25 Sprouts
 
