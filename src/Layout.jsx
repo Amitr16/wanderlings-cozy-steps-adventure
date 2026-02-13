@@ -12,9 +12,20 @@ export default function Layout({ children, currentPageName }) {
   const { data: progress, isLoading } = useQuery({
     queryKey: ['userProgress'],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      const results = await base44.entities.UserProgress.filter({ created_by: user.email });
-      return results[0];
+      try {
+        let user;
+        try {
+          user = await base44.auth.me();
+        } catch {
+          user = await base44.auth.signInAnonymously();
+        }
+
+        const results = await base44.entities.UserProgress.filter({ created_by: user.email });
+        return results[0];
+      } catch (err) {
+        console.error("Auth/Progress error:", err);
+        return null;
+      }
     },
     retry: false
   });
