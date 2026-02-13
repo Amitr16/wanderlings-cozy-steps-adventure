@@ -15,7 +15,7 @@ export default function Layout({ children, currentPageName }) {
     queryFn: async () => {
       const user = getAnonUser();
       const results = await base44.entities.UserProgress.filter({ created_by: user.email });
-      return results[0];
+      return results && results[0] ? results[0] : null;
     },
     retry: false
   });
