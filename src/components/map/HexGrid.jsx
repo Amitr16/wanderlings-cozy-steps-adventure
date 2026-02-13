@@ -66,6 +66,7 @@ export default function HexGrid({ tiles = [], currentWeek = 1, onScout, onRestor
         viewBox={viewBox}
         preserveAspectRatio="xMidYMid meet"
         className="relative z-10"
+        style={{ isolation: "isolate" }}
       >
         {/* Tiny ambient particles */}
         {[...Array(5)].map((_, i) => (
@@ -83,11 +84,41 @@ export default function HexGrid({ tiles = [], currentWeek = 1, onScout, onRestor
           </motion.text>
         ))}
 
+        {/* Global fog overlay */}
+        <g style={{ pointerEvents: 'none' }}>
+          <rect
+            x={minX}
+            y={minY}
+            width={maxX - minX}
+            height={maxY - minY}
+            fill="#e7efe3"
+            opacity="0.9"
+          />
+        </g>
+
         {/* Tiles */}
         {visibleTiles.map((tile) => {
           const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+          const isCleared = tile.state !== 'fogged';
+
           return (
             <g key={tile.id || `${tile.q}_${tile.r}`} transform={`translate(${x}, ${y})`}>
+
+              {/* Expanding reveal animation */}
+              {isCleared && (
+                <motion.circle
+                  r={0}
+                  fill="#000"
+                  initial={{ r: 0 }}
+                  animate={{ r: tileSize * 1.6 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  style={{
+                    mixBlendMode: "destination-out",
+                    pointerEvents: "none"
+                  }}
+                />
+              )}
+
               <HexTile
                 tile={tile}
                 size={tileSize}
