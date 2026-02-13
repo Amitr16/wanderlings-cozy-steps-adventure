@@ -9,8 +9,30 @@ const createPageUrl = (pageName) => `/${pageName}`;
 export default function Layout({ children, currentPageName }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [isChecking, setIsChecking] = React.useState(true);
 
-  // No auth check - just let users test freely
+  useEffect(() => {
+    (async () => {
+      try {
+        await base44.auth.me();
+        setIsChecking(false);
+      } catch (error) {
+        // No valid session → redirect to Base44 login, which will come back with a session
+        base44.auth.redirectToLogin(window.location.href);
+      }
+    })();
+  }, []);
+
+  if (isChecking) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-green-50 to-emerald-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">🌿</div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
