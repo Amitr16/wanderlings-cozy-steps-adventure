@@ -5,7 +5,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import MosslingDisplay from '../components/creature/MosslingDisplay';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '../utils';
 
 export default function Onboarding() {
   const [step, setStep] = useState(0);

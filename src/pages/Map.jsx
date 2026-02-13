@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '../utils';
 import MapTile from '../components/map/MapTile';
 import ResourceDisplay from '../components/resources/ResourceDisplay';
 import { motion } from 'framer-motion';

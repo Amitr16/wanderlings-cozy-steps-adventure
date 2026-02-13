@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Map, Target, Plus, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '../utils';
 import MosslingDisplay from '../components/creature/MosslingDisplay';
 import ResourceDisplay from '../components/resources/ResourceDisplay';
 import { motion } from 'framer-motion';
