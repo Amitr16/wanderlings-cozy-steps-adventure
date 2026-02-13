@@ -150,12 +150,26 @@ export default function Map() {
     }
   });
 
-  if (loadingProgress || loadingTiles || !progress) {
+  if (loadingProgress || loadingTiles) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-green-50 to-emerald-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">🗺️</div>
-          <p className="text-gray-600">{!progress ? 'Please complete onboarding first' : 'Loading map...'}</p>
+          <p className="text-gray-600">Loading map...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!progress) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-green-50 to-emerald-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">🗺️</div>
+          <p className="text-gray-600 mb-6">Please complete onboarding first.</p>
+          <Link to={createPageUrl('Onboarding')}>
+            <Button className="bg-green-500 hover:bg-green-600">Go to Onboarding</Button>
+          </Link>
         </div>
       </div>
     );
