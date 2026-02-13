@@ -46,33 +46,45 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
     
     setIsAnimating(true);
     
-    if (state === 'fogged' && canAfford.scout) {
-      setAnimationType('scout');
-      setTimeout(() => {
-        onScout(tile);
+    if (state === 'fogged') {
+      if (canAfford.scout) {
+        setAnimationType('scout');
         setTimeout(() => {
-          setIsAnimating(false);
-          setAnimationType(null);
-        }, 500);
-      }, 150);
-    } else if (state === 'revealed' && canAfford.restore) {
-      setAnimationType('restore');
-      setTimeout(() => {
-        onRestore(tile);
+          onScout(tile);
+          setTimeout(() => {
+            setIsAnimating(false);
+            setAnimationType(null);
+          }, 500);
+        }, 150);
+      } else {
+        setIsAnimating(false);
+      }
+    } else if (state === 'revealed') {
+      if (canAfford.restore) {
+        setAnimationType('restore');
         setTimeout(() => {
-          setIsAnimating(false);
-          setAnimationType(null);
-        }, 600);
-      }, 150);
-    } else if (state === 'restored' && canAfford.bloom) {
-      setAnimationType('bloom');
-      setTimeout(() => {
-        onBloom(tile);
+          onRestore(tile);
+          setTimeout(() => {
+            setIsAnimating(false);
+            setAnimationType(null);
+          }, 600);
+        }, 150);
+      } else {
+        setIsAnimating(false);
+      }
+    } else if (state === 'restored') {
+      if (canAfford.bloom) {
+        setAnimationType('bloom');
         setTimeout(() => {
-          setIsAnimating(false);
-          setAnimationType(null);
-        }, 800);
-      }, 150);
+          onBloom(tile);
+          setTimeout(() => {
+            setIsAnimating(false);
+            setAnimationType(null);
+          }, 800);
+        }, 150);
+      } else {
+        setIsAnimating(false);
+      }
     }
   };
 
@@ -110,10 +122,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
   }).join(' ') + ` Q ${points[points.length-1].corner.x},${points[points.length-1].corner.y} ${points[0].start.x},${points[0].start.y} Z`;
 
   const colors = biomeColors[state];
-  const isClickable = 
-    (state === 'fogged' && canAfford.scout) ||
-    (state === 'revealed' && canAfford.restore) ||
-    (state === 'restored' && canAfford.bloom);
+  const isClickable = state === 'fogged' || state === 'revealed' || state === 'restored';
 
   const largerSize = size * 1.8; // Much larger for aggressive overlap
   
@@ -148,17 +157,7 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
   }).join(' ') + ` Q ${largerPoints[largerPoints.length-1].corner.x},${largerPoints[largerPoints.length-1].corner.y} ${largerPoints[0].start.x},${largerPoints[0].start.y} Z`;
 
   return (
-    <g transform={`translate(${x}, ${y})`}>
-      {/* Completely invisible interaction zone */}
-      <circle
-        r={size * 0.9}
-        fill="transparent"
-        stroke="none"
-        className={isClickable ? "cursor-pointer" : "cursor-not-allowed"}
-        onClick={handleClick}
-        style={{ pointerEvents: 'all' }}
-      />
-
+    <g transform={`translate(${x}, ${y})`} style={{ isolation: 'isolate' }}>
       {/* Hover highlight only */}
       {isClickable && (
         <motion.circle
@@ -175,6 +174,16 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
           style={{ pointerEvents: 'none' }}
         />
       )}
+
+      {/* Completely invisible interaction zone - on top */}
+      <circle
+        r={size * 0.9}
+        fill="transparent"
+        stroke="none"
+        className="cursor-pointer"
+        onClick={handleClick}
+        style={{ pointerEvents: 'all' }}
+      />
 
       {/* Bloomed glow */}
       {state === 'bloomed' && (
