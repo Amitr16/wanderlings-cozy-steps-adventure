@@ -116,8 +116,9 @@ export default function Map() {
 
   const bloomMutation = useMutation({
     mutationFn: async (tile) => {
+      const p = requireProgress();
       const cost = 12;
-      if (progress.glow < cost) throw new Error('Not enough Glow');
+      if (p.glow < cost) throw new Error('Not enough Glow');
 
       // Longer anticipation for special moment
       await new Promise(resolve => setTimeout(resolve, 200));
@@ -125,11 +126,11 @@ export default function Map() {
       const sproutReward = Math.floor(Math.random() * 11) + 15; // 15-25 Sprouts
 
       await base44.entities.MapTile.update(tile.id, { state: 'bloomed' });
-      await base44.entities.UserProgress.update(progress.id, {
-        glow: progress.glow - cost,
-        tiles_bloomed: progress.tiles_bloomed + 1,
-        sprouts: progress.sprouts + sproutReward,
-        creature_mood: Math.min(100, progress.creature_mood + 10)
+      await base44.entities.UserProgress.update(p.id, {
+        glow: p.glow - cost,
+        tiles_bloomed: p.tiles_bloomed + 1,
+        sprouts: p.sprouts + sproutReward,
+        creature_mood: Math.min(100, p.creature_mood + 10)
       });
 
       // Update quest progress
