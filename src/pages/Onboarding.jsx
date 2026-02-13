@@ -131,9 +131,10 @@ export default function Onboarding() {
 
       await base44.entities.Quest.bulkCreate(quests);
 
-      navigate(createPageUrl('Camp'));
+      setTimeout(() => navigate(createPageUrl('Camp')), 500);
     } catch (error) {
       console.error('Onboarding error:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
