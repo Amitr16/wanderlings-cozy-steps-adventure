@@ -26,8 +26,9 @@ export default function Camp() {
     queryKey: ['quests'],
     queryFn: async () => {
       const user = await base44.auth.me();
-      return await base44.entities.Quest.filter({ created_by: user.email });
-    }
+      return await base44.entities.Quest.filter({ created_by: user.email, day: progress?.season_day || 1 });
+    },
+    enabled: !!progress
   });
 
   const addStepsMutation = useMutation({
@@ -35,22 +36,36 @@ export default function Camp() {
       const newTotalSteps = progress.total_steps + steps;
       const newTodaySteps = progress.today_steps + steps;
       const glowFromSteps = Math.floor(steps / 100);
-      const newGlow = progress.glow + glowFromSteps;
+      
+      // Glow cap system: 150 max stored, overflow goes to Dew
+      const GLOW_CAP = 150;
+      let newGlow = progress.glow + glowFromSteps;
+      let newDew = progress.dew;
+      
+      if (newGlow > GLOW_CAP) {
+        newDew += newGlow - GLOW_CAP;
+        newGlow = GLOW_CAP;
+      }
 
       await base44.entities.UserProgress.update(progress.id, {
         total_steps: newTotalSteps,
         today_steps: newTodaySteps,
-        glow: newGlow
+        glow: newGlow,
+        dew: newDew
       });
 
       // Update quest progress
       if (quests) {
         for (const quest of quests) {
-          if (quest.target_metric === 'steps' && !quest.completed) {
-            await base44.entities.Quest.update(quest.id, {
-              current_progress: Math.min(quest.current_progress + steps, quest.target_amount),
-              completed: quest.current_progress + steps >= quest.target_amount
-            });
+          if ((quest.target_metric === 'mini_goal' && newTodaySteps >= progress.personal_step_goal * 0.6) ||
+              (quest.target_metric === 'psg' && newTodaySteps >= progress.personal_step_goal) ||
+              (quest.target_metric === 'stretch_goal' && newTodaySteps >= progress.personal_step_goal * 1.2)) {
+            if (!quest.completed) {
+              await base44.entities.Quest.update(quest.id, {
+                current_progress: quest.target_amount,
+                completed: true
+              });
+            }
           }
         }
       }
@@ -89,6 +104,11 @@ export default function Camp() {
             <h1 className="text-2xl font-bold text-gray-800">🏕️ Your Camp</h1>
             <div className="flex items-center gap-3">
               <ResourceDisplay type="glow" amount={progress?.glow || 0} size="md" />
+              {progress?.dew > 0 && (
+                <div className="text-sm text-gray-600">
+                  +{progress.dew} Dew 💧
+                </div>
+              )}
               <ResourceDisplay type="sprouts" amount={progress?.sprouts || 0} size="md" />
             </div>
           </div>

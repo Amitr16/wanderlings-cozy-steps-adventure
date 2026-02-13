@@ -21,68 +21,83 @@ export default function Onboarding() {
       await base44.entities.UserProgress.create({
         creature_type: 'mossling',
         glow: 15,
+        dew: 0,
         sprouts: 0,
+        festival_tokens: 0,
         total_steps: 0,
         today_steps: 0,
+        tiles_scouted: 0,
         tiles_restored: 0,
+        tiles_bloomed: 0,
         creature_mood: 100,
+        bond_level: 1,
+        current_week: 1,
+        season_day: 1,
+        personal_step_goal: 3000,
         onboarding_complete: true,
         last_login_date: new Date().toISOString().split('T')[0],
+        last_blessing_claimed: new Date().toISOString().split('T')[0],
         created_by: user.email
       });
 
-      // Create initial map tiles (5x5 grid)
+      // Create initial hex map tiles (radius 3 for Week 1)
       const tiles = [];
-      const biomes = ['forest', 'meadow', 'pond', 'grove', 'mushroom'];
+      const biomes = ['mosswood', 'firefly', 'brookside', 'mushroom', 'blossom', 'pebble'];
       
-      for (let x = 0; x < 5; x++) {
-        for (let y = 0; y < 5; y++) {
-          tiles.push({
-            position_x: x,
-            position_y: y,
-            state: x === 2 && y === 2 ? 'restored' : 'fogged', // Center tile starts restored
-            biome: biomes[Math.floor(Math.random() * biomes.length)],
-            sprout_reward: 5,
-            created_by: user.email
-          });
+      const radius = 3;
+      for (let q = -radius; q <= radius; q++) {
+        for (let r = -radius; r <= radius; r++) {
+          const s = -q - r;
+          if (Math.abs(s) <= radius) {
+            tiles.push({
+              q,
+              r,
+              state: q === 0 && r === 0 ? 'restored' : 'fogged', // Center tile starts restored
+              biome: biomes[Math.floor(Math.random() * biomes.length)],
+              week_unlocked: 1,
+              created_by: user.email
+            });
+          }
         }
       }
 
       await base44.entities.MapTile.bulkCreate(tiles);
 
-      // Create initial daily quests
+      // Create Day 1 quests
       const quests = [
         {
+          day: 1,
+          quest_type: 'move',
           title: 'First Steps',
-          description: 'Take 500 steps today',
-          quest_type: 'daily',
-          target_metric: 'steps',
-          target_amount: 500,
+          description: 'Reach your mini goal',
+          target_metric: 'mini_goal',
+          target_amount: 1800, // 0.6 * 3000
           current_progress: 0,
-          glow_reward: 10,
-          sprout_reward: 5,
-          created_by: user.email
-        },
-        {
-          title: 'Reveal the Forest',
-          description: 'Reveal 2 new tiles',
-          quest_type: 'daily',
-          target_metric: 'tiles_revealed',
-          target_amount: 2,
-          current_progress: 0,
-          glow_reward: 15,
+          glow_reward: 5,
           sprout_reward: 10,
           created_by: user.email
         },
         {
-          title: 'Restore Nature',
-          description: 'Restore 1 tile to its natural beauty',
-          quest_type: 'daily',
-          target_metric: 'tiles_restored',
+          day: 1,
+          quest_type: 'world',
+          title: 'Reveal the Forest',
+          description: 'Scout 2 tiles',
+          target_metric: 'scout',
+          target_amount: 2,
+          current_progress: 0,
+          sprout_reward: 10,
+          created_by: user.email
+        },
+        {
+          day: 1,
+          quest_type: 'cozy',
+          title: 'Feed the Campfire',
+          description: 'Open the app and tap the campfire',
+          target_metric: 'campfire',
           target_amount: 1,
           current_progress: 0,
-          glow_reward: 20,
-          sprout_reward: 15,
+          sprout_reward: 5,
+          glow_reward: 5,
           created_by: user.email
         }
       ];
