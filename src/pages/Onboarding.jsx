@@ -144,7 +144,10 @@ export default function Onboarding() {
         }
       ];
 
-      await base44.entities.Quest.bulkCreate(quests);
+      const existingQuests = await base44.entities.Quest.filter({ created_by: user.email, day: 1 });
+      if (!existingQuests?.length) {
+        await base44.entities.Quest.bulkCreate(quests);
+      }
 
       // Invalidate user progress cache and wait a bit before navigating
       queryClient.invalidateQueries({ queryKey: ['userProgress'] });
