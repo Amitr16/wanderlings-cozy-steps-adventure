@@ -76,6 +76,14 @@ export default function HexGrid({
             <stop offset="100%" stopColor="#5f8a55" />
           </linearGradient>
 
+          <clipPath id="islandClip" clipPathUnits="userSpaceOnUse">
+            <circle
+              cx={(minX + maxX) / 2}
+              cy={(minY + maxY) / 2}
+              r={Math.min(maxX - minX, maxY - minY) * 0.35}
+            />
+          </clipPath>
+
           <mask id="fogMask" maskUnits="userSpaceOnUse">
             {/* White rect shows fog everywhere */}
             <rect
@@ -135,8 +143,8 @@ export default function HexGrid({
           );
         })}
 
-        {/* Fog layer (masked) */}
-        <g mask="url(#fogMask)" style={{ pointerEvents: 'none' }}>
+        {/* Fog layer (masked & clipped to island) */}
+        <g mask="url(#fogMask)" clipPath="url(#islandClip)" style={{ pointerEvents: 'none' }}>
           <rect
             x={minX}
             y={minY}
