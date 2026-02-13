@@ -174,14 +174,23 @@ export default function HexTile({ tile, x, y, onScout, onRestore, onBloom, canAf
   return (
     <g transform={`translate(${x}, ${y})`} style={{ isolation: 'isolate' }}>
       {/* Click target ALWAYS on top */}
-      <circle
-        r={size * 1.05}
-        fill="transparent"
-        stroke="none"
-        className="cursor-pointer"
-        onClick={handleClick}
-        style={{ pointerEvents: 'all' }}
-      />
+       <circle
+         r={size * 1.05}
+         fill="transparent"
+         stroke="none"
+         className="cursor-pointer"
+         onPointerDown={(e) => {
+           e.preventDefault();
+           e.stopPropagation();
+           handleClick();
+         }}
+         onTouchStart={(e) => {
+           e.preventDefault();
+           e.stopPropagation();
+           handleClick();
+         }}
+         style={{ pointerEvents: 'all', touchAction: 'manipulation' }}
+       />
       
       <g style={{ pointerEvents: 'none' }}>
         {/* Hover highlight */}
