@@ -12,9 +12,8 @@ export default function Layout({ children, currentPageName }) {
   const { data: progress, isLoading } = useQuery({
     queryKey: ['userProgress'],
     queryFn: async () => {
-      // Use test user for development
-      const testUser = { email: 'test@wanderlings.local' };
-      const results = await base44.entities.UserProgress.filter({ created_by: testUser.email });
+      const user = await base44.auth.me();
+      const results = await base44.entities.UserProgress.filter({ created_by: user.email });
       return results[0];
     },
     retry: false
