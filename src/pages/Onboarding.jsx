@@ -136,7 +136,9 @@ export default function Onboarding() {
 
       await base44.entities.Quest.bulkCreate(quests);
 
-      setTimeout(() => navigate(createPageUrl('Camp')), 500);
+      // Invalidate user progress cache and wait a bit before navigating
+      queryClient.invalidateQueries({ queryKey: ['userProgress'] });
+      setTimeout(() => navigate(createPageUrl('Camp')), 800);
     } catch (error) {
       console.error('Onboarding error:', error);
       setError(error.message);
