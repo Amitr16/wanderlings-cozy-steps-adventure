@@ -44,20 +44,6 @@ export default function HexGrid({
 
   const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
 
-  const maskHexes = visibleTiles
-    .filter(tile => tile.state !== 'fogged')
-    .map(tile => {
-      const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
-      return (
-        <g key={`mask_${tile.q}_${tile.r}`} transform={`translate(${x}, ${y})`}>
-          <path
-            d={hexPath(tileSize)}
-            fill="black"
-          />
-        </g>
-      );
-    });
-
   return (
     <div className="w-full h-full overflow-hidden rounded-2xl relative">
       {/* Felt background */}
@@ -91,7 +77,7 @@ export default function HexGrid({
           </linearGradient>
 
           <mask id="fogMask">
-            {/* Entire area fogged */}
+            {/* White rect makes everything fogged initially */}
             <rect
               x={minX}
               y={minY}
@@ -99,9 +85,22 @@ export default function HexGrid({
               height={maxY - minY}
               fill="white"
             />
+            
+            {/* Black hexes cut fog for revealed tiles */}
+            {visibleTiles.map(tile => {
+              if (tile.state === 'fogged') return null;
 
-            {/* Reveal cleared tiles with hex shapes */}
-            {maskHexes}
+              const { x, y } = hexToPixel(tile.q, tile.r, tileSize);
+
+              return (
+                <g key={`mask_${tile.q}_${tile.r}`} transform={`translate(${x}, ${y})`}>
+                  <path
+                    d={hexPath(tileSize)}
+                    fill="black"
+                  />
+                </g>
+              );
+            })}
           </mask>
         </defs>
 
