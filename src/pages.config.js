@@ -48,19 +48,19 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import Camp from './pages/Camp';
+import Community from './pages/Community';
 import Map from './pages/Map';
 import Onboarding from './pages/Onboarding';
 import Quests from './pages/Quests';
-import Community from './pages/Community';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Camp": Camp,
+    "Community": Community,
     "Map": Map,
     "Onboarding": Onboarding,
     "Quests": Quests,
-    "Community": Community,
 }
 
 export const pagesConfig = {

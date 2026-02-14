@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 
 import HexGrid from '../components/map/HexGrid';
 import ResourceDisplay from '../components/resources/ResourceDisplay';
+import { recordMapAction } from '../components/social/leagueHelper';
+import { getOrCreateProfile } from '../components/social/profileHelper';
 const createPageUrl = (pageName) => `/${pageName}`;
 
 export default function Map() {
@@ -20,6 +22,11 @@ export default function Map() {
       const results = await base44.entities.UserProgress.filter({ created_by: user.email });
       return results && results[0] ? results[0] : null;
     }
+  });
+
+  const { data: myProfile } = useQuery({
+    queryKey: ['myProfile'],
+    queryFn: getOrCreateProfile
   });
 
   useEffect(() => {
@@ -94,6 +101,17 @@ export default function Map() {
           });
         }
       }
+
+      // Record league action
+      if (myProfile) {
+        await recordMapAction({
+          myProfile,
+          progress: p,
+          tileId: tile.id,
+          actionType: 'scout'
+        });
+      }
+
       console.log('[Map scoutMutation] 10. mutationFn COMPLETE');
     },
     onMutate: async (tile) => {
@@ -147,6 +165,16 @@ export default function Map() {
           });
         }
       }
+
+      // Record league action
+      if (myProfile) {
+        await recordMapAction({
+          myProfile,
+          progress: p,
+          tileId: tile.id,
+          actionType: 'restore'
+        });
+      }
     },
     onMutate: async (tile) => {
       await queryClient.cancelQueries({ queryKey: ['mapTiles'] });
@@ -190,6 +218,16 @@ export default function Map() {
             completed: quest.current_progress + 1 >= quest.target_amount
           });
         }
+      }
+
+      // Record league action
+      if (myProfile) {
+        await recordMapAction({
+          myProfile,
+          progress: p,
+          tileId: tile.id,
+          actionType: 'bloom'
+        });
       }
     },
     onMutate: async (tile) => {

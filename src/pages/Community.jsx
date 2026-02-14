@@ -17,6 +17,7 @@ import {
 import FriendsList from '../components/social/FriendsList';
 import FriendRequestCard from '../components/social/FriendRequestCard';
 import LanternsTab from '../components/social/LanternsTab';
+import LeagueTab from '../components/social/LeagueTab';
 
 const createPageUrl = (pageName) => `/${pageName}`;
 
@@ -227,10 +228,7 @@ export default function Community() {
             )}
 
             {activeTab === 'league' && (
-              <div className="text-center py-12">
-                <Swords className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-600">Weekly League coming soon!</p>
-              </div>
+              <LeagueTab myProfile={myProfile} friends={friends} />
             )}
           </div>
         </motion.div>
