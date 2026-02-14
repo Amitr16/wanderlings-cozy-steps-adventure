@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { handleDayRollover } from '@/components/system/DailyQuestGenerator';
 import { getAnonUser } from '@/components/system/anonUser';
+import { getOrCreateProfile } from '@/components/social/profileHelper';
 const createPageUrl = (pageName) => `/${pageName}`;
 
 export default function Layout({ children, currentPageName }) {
@@ -15,6 +16,8 @@ export default function Layout({ children, currentPageName }) {
     (async () => {
       try {
         await base44.auth.me();
+        // Bootstrap profile on first load
+        await getOrCreateProfile();
         setIsChecking(false);
       } catch (error) {
         // No valid session → redirect to Base44 login, which will come back with a session

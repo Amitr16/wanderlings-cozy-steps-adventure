@@ -110,6 +110,11 @@ export default function Camp() {
                   +{progress.dew} Dew 💧
                 </div>
               )}
+              {progress?.free_scout_tokens > 0 && (
+                <div className="flex items-center gap-1 bg-amber-100 px-3 py-1 rounded-full border-2 border-amber-300">
+                  <span className="text-sm font-bold text-amber-700">🎫 {progress.free_scout_tokens}</span>
+                </div>
+              )}
               <ResourceDisplay type="sprouts" amount={progress ? progress.sprouts : 0} size="md" />
             </div>
           </div>

@@ -55,18 +55,34 @@ export default function Map() {
     mutationFn: async (tile) => {
       console.log('[Map scoutMutation] 6. mutationFn START - tile:', tile.q, tile.r);
       const p = requireProgress();
+      
+      // Check if we can use a free scout token
+      const hasFreeToken = p.free_scout_tokens > 0;
       const cost = 3;
-      if (p.glow < cost) throw new Error('Not enough Glow');
+      
+      if (!hasFreeToken && p.glow < cost) {
+        throw new Error('Not enough Glow');
+      }
 
       console.log('[Map scoutMutation] 7. Calling backend update for tile:', tile.id);
       await base44.entities.MapTile.update(tile.id, { state: 'revealed' });
       console.log('[Map scoutMutation] 8. MapTile updated, now updating UserProgress');
       
-      await base44.entities.UserProgress.update(p.id, {
-        glow: p.glow - cost,
+      // Use token or glow
+      const updates = {
         tiles_scouted: p.tiles_scouted + 1,
         sprouts: p.sprouts + 2
-      });
+      };
+      
+      if (hasFreeToken) {
+        updates.free_scout_tokens = p.free_scout_tokens - 1;
+        console.log('[Map scoutMutation] Using free scout token');
+      } else {
+        updates.glow = p.glow - cost;
+        console.log('[Map scoutMutation] Using glow');
+      }
+      
+      await base44.entities.UserProgress.update(p.id, updates);
       console.log('[Map scoutMutation] 9. UserProgress updated, updating quest progress');
 
       // Update quest progress
@@ -235,7 +251,7 @@ export default function Map() {
   }
 
   const canAfford = {
-    scout: progress.glow >= 3,
+    scout: progress.glow >= 3 || (progress.free_scout_tokens || 0) > 0,
     restore: progress.glow >= 7,
     bloom: progress.glow >= 12
   };
@@ -254,6 +270,11 @@ export default function Map() {
             </Link>
             <div className="flex items-center gap-3">
               <ResourceDisplay type="glow" amount={progress?.glow || 0} size="md" />
+              {progress?.free_scout_tokens > 0 && (
+                <div className="flex items-center gap-1 bg-amber-100 px-3 py-1 rounded-full border-2 border-amber-300">
+                  <span className="text-sm font-bold text-amber-700">🎫 {progress.free_scout_tokens}</span>
+                </div>
+              )}
               <ResourceDisplay type="sprouts" amount={progress?.sprouts || 0} size="md" />
             </div>
           </div>

@@ -16,6 +16,7 @@ import {
 } from '../components/social/profileHelper';
 import FriendsList from '../components/social/FriendsList';
 import FriendRequestCard from '../components/social/FriendRequestCard';
+import LanternsTab from '../components/social/LanternsTab';
 
 const createPageUrl = (pageName) => `/${pageName}`;
 
@@ -73,9 +74,19 @@ export default function Community() {
     );
   }
 
+  const { data: unclaimedCount = 0 } = useQuery({
+    queryKey: ['unclaimedLanterns', myProfile?.public_id],
+    queryFn: async () => {
+      const { getAllLanterns } = await import('../components/social/lanternHelper');
+      const lanterns = await getAllLanterns(myProfile.public_id);
+      return lanterns.filter(l => !l.claimed_at).length;
+    },
+    enabled: !!myProfile
+  });
+
   const tabs = [
     { id: 'friends', label: 'Friends', icon: Users },
-    { id: 'lanterns', label: 'Lanterns', icon: Gift, badge: 0 },
+    { id: 'lanterns', label: 'Lanterns', icon: Gift, badge: unclaimedCount },
     { id: 'league', label: 'League', icon: Swords }
   ];
 
@@ -212,10 +223,7 @@ export default function Community() {
             )}
 
             {activeTab === 'lanterns' && (
-              <div className="text-center py-12">
-                <Gift className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-600">Lantern Gifts coming soon!</p>
-              </div>
+              <LanternsTab myProfile={myProfile} friends={friends} />
             )}
 
             {activeTab === 'league' && (
