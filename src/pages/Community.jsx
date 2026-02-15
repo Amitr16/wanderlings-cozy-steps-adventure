@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Users, Gift, Swords } from 'lucide-react';
+import { ArrowLeft, Users, Gift, Swords, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -88,10 +88,11 @@ export default function Community() {
     enabled: !!myProfile
   });
 
-  const tabs = [
+  const socialTabs = [
     { id: 'friends', label: 'Friends', icon: Users },
     { id: 'lanterns', label: 'Lanterns', icon: Gift, badge: unclaimedCount },
-    { id: 'league', label: 'League', icon: Swords }
+    { id: 'league', label: 'League', icon: Trophy },
+    { id: 'duels', label: 'Duels', icon: Swords }
   ];
 
   return (
@@ -139,7 +140,7 @@ export default function Community() {
           className="bg-white rounded-2xl shadow-sm border-2 border-green-200 mb-6"
         >
           <div className="flex border-b border-gray-200">
-            {tabs.map((tab) => {
+            {socialTabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
