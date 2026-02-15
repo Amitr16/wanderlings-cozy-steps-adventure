@@ -120,8 +120,14 @@ export const recordMapAction = async ({ myProfile, progress, tileId, actionType 
     bloom: 7
   };
   
+  const eventTypeMap = {
+    scout: 'tile_scouted',
+    restore: 'tile_restored',
+    bloom: 'tile_bloomed'
+  };
+  
   const embers = embersMap[actionType] || 0;
-  const eventType = `tile_${actionType}ed`;
+  const eventType = eventTypeMap[actionType];
   
   // Record event (idempotent)
   const { alreadyRecorded } = await recordActionEvent({

@@ -18,12 +18,15 @@ import FriendsList from '../components/social/FriendsList';
 import FriendRequestCard from '../components/social/FriendRequestCard';
 import LanternsTab from '../components/social/LanternsTab';
 import LeagueTab from '../components/social/LeagueTab';
+import DuelsTab from '../components/social/DuelsTab';
 
 const createPageUrl = (pageName) => `/${pageName}`;
 
 export default function Community() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('friends');
+  
+  const tabs = ['friends', 'lanterns', 'league', 'duels'];
   const [friendCodeInput, setFriendCodeInput] = useState('');
 
   const { data: myProfile, isLoading: loadingProfile } = useQuery({
@@ -229,6 +232,10 @@ export default function Community() {
 
             {activeTab === 'league' && (
               <LeagueTab myProfile={myProfile} friends={friends} />
+            )}
+
+            {activeTab === 'duels' && (
+              <DuelsTab myProfile={myProfile} friends={friends} />
             )}
           </div>
         </motion.div>
