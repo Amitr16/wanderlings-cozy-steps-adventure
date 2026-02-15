@@ -25,8 +25,6 @@ const createPageUrl = (pageName) => `/${pageName}`;
 export default function Community() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('friends');
-  
-  const tabs = ['friends', 'lanterns', 'league', 'duels'];
   const [friendCodeInput, setFriendCodeInput] = useState('');
 
   const { data: myProfile, isLoading: loadingProfile } = useQuery({
