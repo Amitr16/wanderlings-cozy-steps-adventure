@@ -29,6 +29,9 @@ export default function Map() {
     queryFn: getOrCreateProfile
   });
 
+  const currentWeek = progress?.current_week || 1;
+  const hasTeamThisWeek = myProfile?.league_week === currentWeek && myProfile?.league_team;
+
   useEffect(() => {
     if (!progress && !loadingProgress) {
       const timer = setTimeout(() => refetch(), 500);

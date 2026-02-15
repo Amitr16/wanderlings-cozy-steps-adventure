@@ -41,7 +41,7 @@ export const assignTeam = async (myProfile, team, week) => {
 
 // Record action event (idempotent via event_key)
 export const recordActionEvent = async ({ publicId, week, team, tileId, type, embers }) => {
-  const eventKey = `${tileId}:${type}`;
+  const eventKey = `${publicId}:${week}:${tileId}:${type}`;
   
   // Check if event already exists
   const existing = await base44.entities.ActionEvent.filter({ event_key: eventKey });
