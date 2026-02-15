@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Swords } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -335,6 +335,24 @@ export default function Map() {
               Week {progress?.current_week || 1} • Day {progress?.season_day || 1}
             </div>
           </div>
+
+          {!hasTeamThisWeek && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-3 border-2 border-purple-300"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Swords className="w-4 h-4 text-purple-600" />
+                  <span className="text-sm font-semibold text-purple-800">Join a team to earn embers 🔥</span>
+                </div>
+                <Link to={createPageUrl('Community')} className="text-xs font-bold text-purple-600 hover:text-purple-700 underline whitespace-nowrap">
+                  Join →
+                </Link>
+              </div>
+            </motion.div>
+          )}
           
           <div className="h-[600px]">
             <HexGrid
