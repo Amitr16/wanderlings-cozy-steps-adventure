@@ -38,11 +38,12 @@ export const createDuel = async (fromPublicId, toPublicId, type, durationHours) 
 
 // Accept a duel (sets start/end times)
 export const acceptDuel = async (duelId) => {
-  const duel = await base44.entities.Duel.filter({ id: duelId });
-  if (!duel || duel.length === 0) throw new Error('Duel not found');
+  const allDuels = await base44.entities.Duel.list();
+  const duel = allDuels?.find(d => d.id === duelId);
+  if (!duel) throw new Error('Duel not found');
   
   const now = new Date();
-  const endTime = new Date(now.getTime() + duel[0].duration_hours * 60 * 60 * 1000);
+  const endTime = new Date(now.getTime() + duel.duration_hours * 60 * 60 * 1000);
   
   await base44.entities.Duel.update(duelId, {
     status: 'active',
@@ -105,8 +106,10 @@ export const computeScore = async (duel, publicId) => {
   const endTime = new Date(duel.end_at);
   
   const relevantEvents = allEvents.filter(e => {
-    const eventTime = new Date(e.created_date);
-    return eventTime >= startTime && eventTime <= endTime;
+    const timestamp = e.created_date || e.created_at || e.createdAt || e.createdDate;
+    if (!timestamp) return false;
+    const eventTime = new Date(timestamp);
+    return !isNaN(eventTime.getTime()) && eventTime >= startTime && eventTime <= endTime;
   });
   
   if (duel.type === 'bloom_2') {
