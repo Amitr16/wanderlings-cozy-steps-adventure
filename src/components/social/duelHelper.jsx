@@ -25,6 +25,24 @@ export const getDuelTypeInfo = (type) => duelTypeInfo[type] || duelTypeInfo.bloo
 
 // Create a new duel challenge
 export const createDuel = async (fromPublicId, toPublicId, type, durationHours) => {
+  // Check active duel limit
+  const activeCount = await getActiveDuelCount(fromPublicId);
+  if (activeCount >= 2) {
+    throw new Error('Maximum 2 active duels at once');
+  }
+  
+  // Verify friendship exists and is accepted
+  const allFriendships = await base44.entities.Friendship.list();
+  const friendship = allFriendships?.find(f => 
+    f.status === 'accepted' &&
+    ((f.user_a_public_id === fromPublicId && f.user_b_public_id === toPublicId) ||
+     (f.user_a_public_id === toPublicId && f.user_b_public_id === fromPublicId))
+  );
+  
+  if (!friendship) {
+    throw new Error('Can only duel accepted friends');
+  }
+  
   return await base44.entities.Duel.create({
     from_public_id: fromPublicId,
     to_public_id: toPublicId,
