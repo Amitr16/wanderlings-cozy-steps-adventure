@@ -149,14 +149,14 @@ export const recordMapAction = async ({ myProfile, progress, tileId, actionType 
   
   // Award Season XP
   try {
-    const { getActiveSeason, awardSeasonXP, XP_PER_ACTION } = await import('./seasonHelper');
+    const { getActiveSeason, awardSeasonXP, XP_PER_ACTION } = await import('../season/seasonHelper');
     const season = await getActiveSeason();
     if (season && XP_PER_ACTION[eventType]) {
       await awardSeasonXP({
         seasonId: season.season_id,
         publicId: myProfile.public_id,
         sourceType: 'action',
-        sourceId: `${publicId}:${week}:${tileId}:${type}`,
+        sourceId: `${myProfile.public_id}:${week}:${tileId}:${eventType}`,
         xp: XP_PER_ACTION[eventType]
       });
     }
