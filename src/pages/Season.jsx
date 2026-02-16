@@ -15,6 +15,7 @@ import {
   getUnclaimedLevels
 } from '../components/season/seasonHelper';
 import { getOrCreateProfile } from '../components/social/profileHelper';
+import CosmeticLocker from '../components/cosmetics/CosmeticLocker';
 
 const createPageUrl = (pageName) => `/${pageName}`;
 
@@ -160,6 +161,16 @@ export default function Season() {
               }`}
             >
               Rewards Ladder
+            </button>
+            <button
+              onClick={() => setActiveTab('locker')}
+              className={`flex-1 py-4 px-4 font-semibold transition-colors ${
+                activeTab === 'locker'
+                  ? 'text-purple-600 border-b-2 border-purple-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Locker
             </button>
           </div>
 
@@ -308,6 +319,10 @@ export default function Season() {
                   })}
                 </div>
               </div>
+            )}
+
+            {activeTab === 'locker' && (
+              <CosmeticLocker myProfile={myProfile} />
             )}
           </div>
         </div>
