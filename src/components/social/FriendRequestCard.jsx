@@ -4,14 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Check, X } from 'lucide-react';
 import { toast } from 'sonner';
-
-const avatarEmojis = ['🌱', '🍄', '🌿', '🌸', '🪨', '💧', '✨', '🔥'];
-
-const getAvatarEmoji = (seed) => {
-  if (!seed) return '🌱';
-  const index = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return avatarEmojis[index % avatarEmojis.length];
-};
+import ProfileDisplay from '../cosmetics/ProfileDisplay';
 
 export default function FriendRequestCard({ request, myPublicId }) {
   const queryClient = useQueryClient();
@@ -47,11 +40,8 @@ export default function FriendRequestCard({ request, myPublicId }) {
 
   return (
     <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
-      <div className="text-3xl">
-        {getAvatarEmoji(requesterProfile.avatar_seed)}
-      </div>
+      <ProfileDisplay profile={requesterProfile} size="md" showTitle={false} />
       <div className="flex-1">
-        <p className="font-bold text-gray-800">{requesterProfile.nickname}</p>
         <p className="text-xs text-gray-500">wants to be friends</p>
       </div>
       <div className="flex gap-2">
