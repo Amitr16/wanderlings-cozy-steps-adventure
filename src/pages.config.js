@@ -52,6 +52,7 @@ import Community from './pages/Community';
 import Map from './pages/Map';
 import Onboarding from './pages/Onboarding';
 import Quests from './pages/Quests';
+import Season from './pages/Season';
 import __Layout from './Layout.jsx';
 
 
@@ -61,6 +62,7 @@ export const PAGES = {
     "Map": Map,
     "Onboarding": Onboarding,
     "Quests": Quests,
+    "Season": Season,
 }
 
 export const pagesConfig = {
