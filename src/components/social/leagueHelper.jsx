@@ -104,7 +104,7 @@ export const incrementUserContribution = async (week, team, publicId, embers) =>
   }
 };
 
-// Record a map action and award embers
+// Record a map action and award embers + Season XP
 export const recordMapAction = async ({ myProfile, progress, tileId, actionType }) => {
   const week = getWeek(progress);
   const team = await getOrAssignTeam(myProfile, week);
@@ -146,6 +146,24 @@ export const recordMapAction = async ({ myProfile, progress, tileId, actionType 
   // Increment totals
   await incrementTeamTotals(week, team, embers);
   await incrementUserContribution(week, team, myProfile.public_id, embers);
+  
+  // Award Season XP
+  try {
+    const { getActiveSeason, awardSeasonXP, XP_PER_ACTION } = await import('./seasonHelper');
+    const season = await getActiveSeason();
+    if (season && XP_PER_ACTION[eventType]) {
+      await awardSeasonXP({
+        seasonId: season.season_id,
+        publicId: myProfile.public_id,
+        sourceType: 'action',
+        sourceId: `${publicId}:${week}:${tileId}:${type}`,
+        xp: XP_PER_ACTION[eventType]
+      });
+    }
+  } catch (err) {
+    // Season system not critical, don't fail the action
+    console.error('Failed to award season XP:', err);
+  }
   
   return { scored: true, embers, team };
 };

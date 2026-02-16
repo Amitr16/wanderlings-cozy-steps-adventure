@@ -8,11 +8,18 @@ import { Link } from 'react-router-dom';
 const createPageUrl = (pageName) => `/${pageName}`;
 import MosslingDisplay from '../components/creature/MosslingDisplay';
 import ResourceDisplay from '../components/resources/ResourceDisplay';
+import CampSeasonCard from '../components/season/CampSeasonCard';
+import { getOrCreateProfile } from '../components/social/profileHelper';
 import { motion } from 'framer-motion';
 
 export default function Camp() {
   const queryClient = useQueryClient();
   const [showStepSimulator, setShowStepSimulator] = useState(false);
+
+  const { data: myProfile } = useQuery({
+    queryKey: ['myProfile'],
+    queryFn: getOrCreateProfile
+  });
 
   const { data: progress, isLoading } = useQuery({
     queryKey: ['userProgress'],
@@ -123,6 +130,9 @@ export default function Camp() {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Season Card */}
+        {myProfile && <CampSeasonCard myProfile={myProfile} />}
+        
         {/* Creature Section - The Star of the Show */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
