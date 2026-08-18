@@ -1,0 +1,78 @@
+{
+  "name": "Duel",
+  "type": "object",
+  "properties": {
+    "from_public_id": {
+      "type": "string",
+      "description": "Challenger's public_id"
+    },
+    "to_public_id": {
+      "type": "string",
+      "description": "Opponent's public_id"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "bloom_2",
+        "restore_3",
+        "embers_24h"
+      ],
+      "description": "Duel challenge type"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "declined",
+        "complete"
+      ],
+      "default": "pending",
+      "description": "Current duel status"
+    },
+    "duration_hours": {
+      "type": "number",
+      "description": "Duration in hours (12, 24, 72)"
+    },
+    "start_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When duel starts (set on accept)"
+    },
+    "end_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When duel ends"
+    },
+    "score_from": {
+      "type": "number",
+      "default": 0,
+      "description": "Challenger's score"
+    },
+    "score_to": {
+      "type": "number",
+      "default": 0,
+      "description": "Opponent's score"
+    },
+    "winner_public_id": {
+      "type": "string",
+      "description": "Winner's public_id (null for draw)"
+    },
+    "claimed_from": {
+      "type": "boolean",
+      "default": false,
+      "description": "Challenger claimed rewards"
+    },
+    "claimed_to": {
+      "type": "boolean",
+      "default": false,
+      "description": "Opponent claimed rewards"
+    }
+  },
+  "required": [
+    "from_public_id",
+    "to_public_id",
+    "type",
+    "duration_hours"
+  ]
+}

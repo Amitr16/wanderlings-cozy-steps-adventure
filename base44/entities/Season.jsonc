@@ -1,0 +1,46 @@
+{
+  "name": "Season",
+  "type": "object",
+  "properties": {
+    "season_id": {
+      "type": "string",
+      "description": "Unique season identifier (e.g. S1, S2)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name (e.g. Firefly Festival)"
+    },
+    "theme_key": {
+      "type": "string",
+      "enum": [
+        "firefly",
+        "mosswood",
+        "brookside",
+        "frostfall"
+      ],
+      "description": "Visual theme"
+    },
+    "start_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Season start datetime"
+    },
+    "end_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Season end datetime"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this season is currently active"
+    }
+  },
+  "required": [
+    "season_id",
+    "name",
+    "theme_key",
+    "start_at",
+    "end_at"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "CosmeticLoadout",
+  "type": "object",
+  "properties": {
+    "public_id": {
+      "type": "string",
+      "description": "User's public_id"
+    },
+    "active_profile_border": {
+      "type": "string",
+      "description": "Currently equipped profile border item_id"
+    },
+    "active_title": {
+      "type": "string",
+      "description": "Currently equipped title item_id"
+    },
+    "active_camp_banner": {
+      "type": "string",
+      "description": "Currently equipped camp banner item_id"
+    },
+    "active_camp_lanterns": {
+      "type": "string",
+      "description": "Currently equipped camp lantern string item_id"
+    }
+  },
+  "required": [
+    "public_id"
+  ]
+}

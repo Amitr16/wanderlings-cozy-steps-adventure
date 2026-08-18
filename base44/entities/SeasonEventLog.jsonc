@@ -1,0 +1,44 @@
+{
+  "name": "SeasonEventLog",
+  "type": "object",
+  "properties": {
+    "event_key": {
+      "type": "string",
+      "description": "Unique key: seasonId:publicId:sourceType:sourceId"
+    },
+    "season_id": {
+      "type": "string",
+      "description": "Reference to Season"
+    },
+    "public_id": {
+      "type": "string",
+      "description": "User's public_id"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "action",
+        "lantern",
+        "duel",
+        "league_bonus"
+      ],
+      "description": "Source of XP"
+    },
+    "source_id": {
+      "type": "string",
+      "description": "ID of the source event"
+    },
+    "xp": {
+      "type": "number",
+      "description": "XP amount awarded"
+    }
+  },
+  "required": [
+    "event_key",
+    "season_id",
+    "public_id",
+    "source_type",
+    "source_id",
+    "xp"
+  ]
+}

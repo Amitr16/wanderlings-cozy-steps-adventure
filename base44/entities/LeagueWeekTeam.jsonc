@@ -1,0 +1,33 @@
+{
+  "name": "LeagueWeekTeam",
+  "type": "object",
+  "properties": {
+    "week": {
+      "type": "number",
+      "description": "Week number (1-4)"
+    },
+    "team": {
+      "type": "string",
+      "enum": [
+        "mosswood",
+        "brookside",
+        "firefly"
+      ],
+      "description": "Team name"
+    },
+    "embers_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Total embers for this team this week"
+    },
+    "milestone_level": {
+      "type": "number",
+      "default": 0,
+      "description": "Milestone tier unlocked"
+    }
+  },
+  "required": [
+    "week",
+    "team"
+  ]
+}

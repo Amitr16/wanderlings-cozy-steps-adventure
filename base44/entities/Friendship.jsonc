@@ -1,0 +1,34 @@
+{
+  "name": "Friendship",
+  "type": "object",
+  "properties": {
+    "user_a_public_id": {
+      "type": "string",
+      "description": "Lower public_id (normalized ordering)"
+    },
+    "user_b_public_id": {
+      "type": "string",
+      "description": "Higher public_id (normalized ordering)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "declined",
+        "blocked"
+      ],
+      "default": "pending",
+      "description": "Friendship status"
+    },
+    "requested_by_public_id": {
+      "type": "string",
+      "description": "Who initiated the friend request"
+    }
+  },
+  "required": [
+    "user_a_public_id",
+    "user_b_public_id",
+    "requested_by_public_id"
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "name": "Quest",
+  "type": "object",
+  "properties": {
+    "day": {
+      "type": "number",
+      "description": "Season day (1-28)"
+    },
+    "quest_type": {
+      "type": "string",
+      "enum": [
+        "move",
+        "world",
+        "cozy"
+      ],
+      "description": "Quest category"
+    },
+    "title": {
+      "type": "string",
+      "description": "Quest name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Quest description"
+    },
+    "target_metric": {
+      "type": "string",
+      "enum": [
+        "steps",
+        "mini_goal",
+        "psg",
+        "stretch_goal",
+        "scout",
+        "restore",
+        "bloom",
+        "campfire",
+        "cozy_quest",
+        "guild",
+        "decoration",
+        "festival_lantern",
+        "other"
+      ],
+      "description": "What the quest tracks"
+    },
+    "target_amount": {
+      "type": "number",
+      "description": "How much is needed to complete"
+    },
+    "current_progress": {
+      "type": "number",
+      "default": 0,
+      "description": "Current progress"
+    },
+    "glow_reward": {
+      "type": "number",
+      "default": 0,
+      "description": "Glow awarded on completion"
+    },
+    "sprout_reward": {
+      "type": "number",
+      "default": 10,
+      "description": "Sprouts awarded on completion"
+    },
+    "festival_token_reward": {
+      "type": "number",
+      "default": 0,
+      "description": "Festival tokens awarded"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether quest is completed"
+    },
+    "claimed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether rewards were claimed"
+    }
+  },
+  "required": [
+    "day",
+    "quest_type",
+    "title",
+    "target_metric",
+    "target_amount"
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "name": "UserProgress",
+  "type": "object",
+  "properties": {
+    "creature_type": {
+      "type": "string",
+      "enum": [
+        "mossling"
+      ],
+      "default": "mossling",
+      "description": "The user's creature buddy"
+    },
+    "total_steps": {
+      "type": "number",
+      "default": 0,
+      "description": "Lifetime steps taken"
+    },
+    "today_steps": {
+      "type": "number",
+      "default": 0,
+      "description": "Steps taken today"
+    },
+    "glow": {
+      "type": "number",
+      "default": 15,
+      "description": "Current Glow energy (capped at 150)"
+    },
+    "dew": {
+      "type": "number",
+      "default": 0,
+      "description": "Overflow Glow bank"
+    },
+    "sprouts": {
+      "type": "number",
+      "default": 0,
+      "description": "Soft currency for cosmetics"
+    },
+    "festival_tokens": {
+      "type": "number",
+      "default": 0,
+      "description": "Event currency"
+    },
+    "free_scout_tokens": {
+      "type": "number",
+      "default": 0,
+      "description": "Free scout tokens from lantern gifts"
+    },
+    "tiles_scouted": {
+      "type": "number",
+      "default": 0,
+      "description": "Tiles revealed"
+    },
+    "tiles_restored": {
+      "type": "number",
+      "default": 0,
+      "description": "Tiles restored"
+    },
+    "tiles_bloomed": {
+      "type": "number",
+      "default": 0,
+      "description": "Tiles bloomed"
+    },
+    "onboarding_complete": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether user completed onboarding"
+    },
+    "creature_mood": {
+      "type": "number",
+      "default": 100,
+      "description": "Creature happiness level (0-100)"
+    },
+    "bond_level": {
+      "type": "number",
+      "default": 1,
+      "description": "Long-term bond progression"
+    },
+    "current_week": {
+      "type": "number",
+      "default": 1,
+      "description": "Current season week (1-4)"
+    },
+    "season_day": {
+      "type": "number",
+      "default": 1,
+      "description": "Day in the 28-day season (1-28)"
+    },
+    "last_login_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last time user opened the app"
+    },
+    "last_blessing_claimed": {
+      "type": "string",
+      "format": "date",
+      "description": "Last daily blessing claim"
+    },
+    "personal_step_goal": {
+      "type": "number",
+      "default": 3000,
+      "description": "Personalized daily step goal"
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,53 @@
+{
+  "name": "ActionEvent",
+  "type": "object",
+  "properties": {
+    "event_key": {
+      "type": "string",
+      "description": "Unique key: tileId:eventType to prevent double-counting"
+    },
+    "public_id": {
+      "type": "string",
+      "description": "User's public_id"
+    },
+    "week": {
+      "type": "number",
+      "description": "Week number when action occurred"
+    },
+    "team": {
+      "type": "string",
+      "enum": [
+        "mosswood",
+        "brookside",
+        "firefly"
+      ],
+      "description": "Team at time of action"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "tile_scouted",
+        "tile_restored",
+        "tile_bloomed"
+      ],
+      "description": "Action type"
+    },
+    "tile_id": {
+      "type": "string",
+      "description": "Tile that was acted upon"
+    },
+    "embers": {
+      "type": "number",
+      "description": "Embers awarded (1/3/7)"
+    }
+  },
+  "required": [
+    "event_key",
+    "public_id",
+    "week",
+    "team",
+    "type",
+    "tile_id",
+    "embers"
+  ]
+}

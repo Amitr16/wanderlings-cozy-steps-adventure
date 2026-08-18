@@ -1,0 +1,33 @@
+{
+  "name": "LeagueContribution",
+  "type": "object",
+  "properties": {
+    "week": {
+      "type": "number",
+      "description": "Week number (1-4)"
+    },
+    "team": {
+      "type": "string",
+      "enum": [
+        "mosswood",
+        "brookside",
+        "firefly"
+      ],
+      "description": "Team chosen this week"
+    },
+    "public_id": {
+      "type": "string",
+      "description": "User's public_id"
+    },
+    "embers": {
+      "type": "number",
+      "default": 0,
+      "description": "Embers contributed this week"
+    }
+  },
+  "required": [
+    "week",
+    "team",
+    "public_id"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "name": "SeasonProgress",
+  "type": "object",
+  "properties": {
+    "season_id": {
+      "type": "string",
+      "description": "Reference to Season"
+    },
+    "public_id": {
+      "type": "string",
+      "description": "User's public_id"
+    },
+    "season_xp": {
+      "type": "number",
+      "default": 0,
+      "description": "Total XP earned this season"
+    },
+    "season_level": {
+      "type": "number",
+      "default": 1,
+      "description": "Current season level"
+    },
+    "claimed_levels": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "default": [],
+      "description": "Array of level numbers that have been claimed"
+    },
+    "last_xp_award_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time XP was awarded"
+    }
+  },
+  "required": [
+    "season_id",
+    "public_id"
+  ]
+}

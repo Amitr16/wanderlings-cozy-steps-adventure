@@ -1,0 +1,46 @@
+{
+  "name": "MapTile",
+  "type": "object",
+  "properties": {
+    "q": {
+      "type": "number",
+      "description": "Axial coordinate q"
+    },
+    "r": {
+      "type": "number",
+      "description": "Axial coordinate r"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "fogged",
+        "revealed",
+        "restored",
+        "bloomed"
+      ],
+      "default": "fogged",
+      "description": "Current tile state"
+    },
+    "biome": {
+      "type": "string",
+      "enum": [
+        "mosswood",
+        "firefly",
+        "brookside",
+        "mushroom",
+        "blossom",
+        "pebble"
+      ],
+      "description": "Biome type"
+    },
+    "week_unlocked": {
+      "type": "number",
+      "default": 1,
+      "description": "Which week this tile unlocks (1-4)"
+    }
+  },
+  "required": [
+    "q",
+    "r"
+  ]
+}

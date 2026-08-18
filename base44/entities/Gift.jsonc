@@ -1,0 +1,36 @@
+{
+  "name": "Gift",
+  "type": "object",
+  "properties": {
+    "from_public_id": {
+      "type": "string",
+      "description": "Public ID of sender"
+    },
+    "to_public_id": {
+      "type": "string",
+      "description": "Public ID of recipient"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "lantern"
+      ],
+      "default": "lantern",
+      "description": "Gift type"
+    },
+    "claimed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When gift was claimed"
+    },
+    "thank_reaction": {
+      "type": "string",
+      "description": "Reaction emoji from recipient"
+    }
+  },
+  "required": [
+    "from_public_id",
+    "to_public_id",
+    "type"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "CosmeticInventory",
+  "type": "object",
+  "properties": {
+    "public_id": {
+      "type": "string",
+      "description": "User's public_id"
+    },
+    "item_id": {
+      "type": "string",
+      "description": "Unique item identifier"
+    },
+    "item_type": {
+      "type": "string",
+      "enum": [
+        "camp",
+        "profile",
+        "title",
+        "badge"
+      ],
+      "description": "Category of cosmetic"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "season",
+        "league",
+        "duel",
+        "event"
+      ],
+      "description": "How the item was obtained"
+    }
+  },
+  "required": [
+    "public_id",
+    "item_id",
+    "item_type",
+    "source"
+  ]
+}

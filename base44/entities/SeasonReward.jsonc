@@ -1,0 +1,36 @@
+{
+  "name": "SeasonReward",
+  "type": "object",
+  "properties": {
+    "season_id": {
+      "type": "string",
+      "description": "Reference to Season"
+    },
+    "level": {
+      "type": "number",
+      "description": "Level number for this reward"
+    },
+    "reward_type": {
+      "type": "string",
+      "enum": [
+        "cosmetic",
+        "title",
+        "sprouts",
+        "boost",
+        "badge"
+      ],
+      "description": "Type of reward"
+    },
+    "reward_payload": {
+      "type": "object",
+      "description": "Reward data (item_id, amount, etc)",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "season_id",
+    "level",
+    "reward_type",
+    "reward_payload"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "public_id": {
+      "type": "string",
+      "description": "Stable UUID for this user (never changes, never shows email)"
+    },
+    "friend_code": {
+      "type": "string",
+      "description": "Shareable code like MOSS-4K9D"
+    },
+    "nickname": {
+      "type": "string",
+      "description": "Display name"
+    },
+    "avatar_seed": {
+      "type": "string",
+      "description": "Seed for generating avatar visual"
+    },
+    "league_team": {
+      "type": "string",
+      "enum": [
+        "mosswood",
+        "brookside",
+        "firefly"
+      ],
+      "description": "Current weekly team choice"
+    },
+    "league_week": {
+      "type": "number",
+      "description": "Week number when team was chosen"
+    },
+    "last_lantern_sent_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last date user sent a lantern gift"
+    }
+  },
+  "required": [
+    "public_id",
+    "friend_code",
+    "nickname"
+  ]
+}
